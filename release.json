@@ -2,8 +2,8 @@
   "releases": [
     {
       "name": "Can't Heal You",
-      "version": "4.1",
-      "filename": "CantHealYou-4.1.zip",
+      "version": "@project-version@",
+      "filename": "CantHealYou-@project-version@.zip",
       "nolib": false,
       "metadata": [
         {
