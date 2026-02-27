@@ -27,8 +27,6 @@ local ontaxi = 0
 local incapacitated = false
 local imahealer = false
 
--- Store the Settings category reference (modern WoW 10.0+)
-local CantHealYouOptionsCategory = nil
 
 local function Debug(text)
   if debugmode then
@@ -441,12 +439,10 @@ function CantHealYou_slash(str)
   local cmd = string.lower(str)
 
   if cmd == "" then
-    -- No args: open the options panel
-    if Settings and CantHealYouOptionsCategory then
-      Settings.OpenToCategory(CantHealYouOptionsCategory:GetID())
-    elseif InterfaceOptionsFrame_OpenToCategory then
-      InterfaceOptionsFrame_OpenToCategory(CantHealYouOptions)
-    end
+    -- Settings.OpenToCategory is a Blizzard-protected function and cannot be called
+    -- by addon code. Direct the player to the panel instead.
+    print("|cff00ccffCan't Heal You|r: Open |cffffd200Game Menu → Interface → AddOns → Can't Heal You|r to configure.")
+    print("Type |cffffff00/chy help|r for slash command options.")
   elseif cmd == "help" then
     print("|cff00ccffCan't Heal You|r v"..tostring(CHYconfig and CHYconfig.Version or "?").." commands:")
     print("  |cffffff00/chy|r — open options panel")
@@ -578,7 +574,6 @@ function CantHealYouOptions_OnLoad(self)
     -- Modern Settings API (10.0+)
     local category = Settings.RegisterCanvasLayoutCategory(self, "Can't Heal You")
     Settings.RegisterAddOnCategory(category)
-    CantHealYouOptionsCategory = category
     self.OnCommit = function() CantHealYouOptions_Save() end
     self.OnRefresh = function() CantHealYouOptions_OnShow() end
     self.OnDefault = function() end
