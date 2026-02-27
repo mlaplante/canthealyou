@@ -326,13 +326,11 @@ function CantHealYou_OnEvent(self, event, arg1, arg2, arg3, arg4)
         end
     elseif event == "UNIT_SPELLCAST_FAILED" or event == "UNIT_SPELLCAST_FAILED_QUIET" then
         -- Modern WoW args: (unit, castGUID, spellID)
-        -- Clear currentspell on failure so stale data doesn't affect a subsequent cast
-        -- if no matching UI_ERROR_MESSAGE fires to clear it (e.g. unhandled failure reason)
+        -- NOTE: Do NOT clear currentspell here. UNIT_SPELLCAST_FAILED fires BEFORE
+        -- UI_ERROR_MESSAGE, so clearing here would wipe the target before we can warn them.
+        -- currentspell is cleared in UI_ERROR_MESSAGE (after warning) and in the stop/succeeded handler.
         if arg1 == "player" and arg2 == currentspell.castGUID then
-            Debug("cast of "..tostring(currentspell.spell).." on "..tostring(currentspell.target).." failed")
-            currentspell.spell = nil
-            currentspell.castGUID = nil
-            currentspell.target = nil
+            Debug("cast of "..tostring(currentspell.spell).." on "..tostring(currentspell.target).." failed (waiting for UI_ERROR_MESSAGE)")
         end
     elseif event == "UI_ERROR_MESSAGE" then
         local message
