@@ -318,8 +318,10 @@ function CantHealYou_OnEvent(self, event, arg1, arg2, arg3, arg4)
     elseif event == "UNIT_SPELLCAST_SENT" then
         -- Modern WoW args: (unit, target, castGUID, spellID)
         -- Note: spellID is now numeric; spell ranks no longer exist
+        -- arg2 is the target name but may be a "secret string" in modern WoW that cannot
+        -- be compared with ==. Use GetUnitName("target") instead to get a regular string.
         if arg1 == "player" then
-            currentspell.target = arg2
+            currentspell.target = GetUnitName("target", true)
             currentspell.castGUID = arg3
             currentspell.spell = GetSpellNameFromID(arg4)
             Debug(arg1.." is casting "..tostring(currentspell.spell).." on "..tostring(currentspell.target))
@@ -431,6 +433,10 @@ end
 
 function CantHealYou_warn(str)
   local spell, target = SecureCmdOptionParse(str)
+  if not spell or spell == "" then
+    print("Can't Heal You: Usage: /chyw [spell name]")
+    return
+  end
   if not target then target = "target" end
   Debug("testing range for "..spell.." on "..target)
   local inRange = IsSpellInRange(spell, target)
@@ -468,7 +474,7 @@ function CantHealYou_slash(str)
   elseif cmd == "reset" or cmd == "resetall" then
     CHYconfig = {}
     if cmd == "resetall" then
-      CantHealYouConfig = {}
+      CantHealYou_Config = {}
     end
     SetAllDefaults()
     print("Can't Heal You: Config reset.")
@@ -513,6 +519,9 @@ local function ShowOptionValue(name)
   local UIvar = _G["CantHealYouOptions"..name]
 
   Debug("type of "..name.." is "..mytype)
+
+  -- Guard: if no matching widget exists for this config key, skip silently
+  if not UIvar then return end
 
   -- all our boolean variables are displayed in checkboxes
   if mytype == "boolean" then
