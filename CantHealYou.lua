@@ -234,7 +234,7 @@ local function SetAllDefaults()
   SetDefault("OnlyPartyRaidGuild", true)
   SetDefault("Active", true)
   SetDefault("InBattlegrounds", true)
-  SetDefault("OnlyWhenHealer", true)
+  SetDefault("OnlyWhenHealer", false)
   SetDefault("DoOutOfRange", true)
   SetDefault("OutOfRange", CHYstrings.OutOfRange)
   SetDefault("DoLineOfSight", true)
@@ -294,6 +294,11 @@ function CantHealYou_OnEvent(self, event, arg1, arg2, arg3, arg4)
       end
       -- set defaults (only those that don't have values will be set)
       SetAllDefaults()
+      -- v4.0 incorrectly defaulted OnlyWhenHealer to true with no UI to change it;
+      -- reset any config that was set by that bad default so whispers work out of the box
+      if CHYconfig.OnlyWhenHealer == true and (not CHYconfig.Version or CHYconfig.Version == "4.0") then
+        CHYconfig.OnlyWhenHealer = false
+      end
       -- update the version number (use modern C_AddOns API if available)
       if C_AddOns and C_AddOns.GetAddOnMetadata then
         CHYconfig.Version = C_AddOns.GetAddOnMetadata("CantHealYou", "Version")
