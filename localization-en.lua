@@ -12,17 +12,17 @@
 
 CHYstrings = {
 
-["OutOfRange"] = "casting %s on you, but you're out of range!",
+["OutOfRange"] = "I'm casting %s on you, but you're out of range!",
 
-["LineOfSight"] = "casting %s on you, but you're not in line of sight!",
+["LineOfSight"] = "I'm casting %s on you, but you're not in line of sight!",
 
-["LostControl"] = "has been incapacitated and can't heal!",
+["LostControl"] = "I've been incapacitated and can't heal!",
 
-["GainedControl"] = "has recovered and can heal again.",
+["GainedControl"] = "I've recovered and can heal again.",
 
-["AuraBounced"] = "casting %s on you, but a more powerful version is already on you.",
+["AuraBounced"] = "I'm casting %s on you, but a more powerful version is already on you.",
 
-["Interrupted"] = "casting %s on you, but I was interrupted!",
+["Interrupted"] = "I was interrupted while casting %s on you!",
 
 ["UItitle"] = "Can't Heal You",
 

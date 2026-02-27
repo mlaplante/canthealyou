@@ -19,11 +19,9 @@ CantHealYouFrame:Hide()
 local debugmode = false
 
 -- keep track of the last time we whispered someone
-
 local timestamp = {}
 
 -- keep track of whether we're in combat, incapacitated, and a healer
-
 local incombat = false
 local ontaxi = 0
 local incapacitated = false
@@ -51,6 +49,24 @@ local function GetSpellNameFromID(spellID)
   -- Fallback to deprecated API
   local name = GetSpellInfo(spellID)
   return name or tostring(spellID)
+end
+
+-- Update healer state based on current spec role.
+-- Called on login, spec change, and role assignment.
+local function UpdateHealerState()
+  local specIndex = GetSpecialization()
+  if specIndex then
+    local role = GetSpecializationRole(specIndex)
+    imahealer = (role == "HEALER")
+  else
+    imahealer = false
+  end
+  -- Group-assigned role can override spec detection
+  if IsInGroup() then
+    local _, isHealer, _ = UnitGroupRolesAssigned("player")
+    if isHealer then imahealer = true end
+  end
+  Debug("imahealer = "..tostring(imahealer))
 end
 
 local function FindUnitFor(who)
@@ -84,6 +100,9 @@ end
 local function Whisper(who, message)
   -- if we're not active, we shouldn't be here.  But if we do get here, don't do the whisper!
   if not CHYconfig.Active then return end
+
+  -- Only whisper if player is in a healer spec (when OnlyWhenHealer is enabled)
+  if CHYconfig.OnlyWhenHealer and not imahealer then return end
 
   if not CHYconfig.InBattlegrounds then
     if (UnitInBattleground("player") ~= nil) then return end
@@ -130,6 +149,9 @@ local function Broadcast(message)
     return
   end
 
+  -- Only broadcast if player is in a healer spec (when OnlyWhenHealer is enabled)
+  if CHYconfig.OnlyWhenHealer and not imahealer then return end
+
   -- Modern WoW: use IsInRaid/IsInGroup instead of GetNumRaidMembers/GetNumPartyMembers
   if IsInRaid() then
     group = "RAID"
@@ -149,11 +171,15 @@ local function Broadcast(message)
     end
   end
 
-  timestamp["global time"] = time()
+  -- Bug fix: was timestamp["global time"] which was never checked; must match the key we check above
+  timestamp[message] = time()
   SendChatMessage(message, group)
 end
 
 local function DoTheWarn(who, spell, message)
+  -- Guard against nil spell to avoid string.format crash
+  if not spell then spell = "?" end
+
   if ((message == nil) or (message == "")) then
     Debug("DoTheWarn called for "..who.." with spell "..spell.." but no message.  Giving up.")
     return
@@ -176,12 +202,10 @@ local function DoTheWarn(who, spell, message)
   -- if we make it here, all "don't tell them" tests were passed
   Debug("whisper "..who)
   Whisper(who, string.format(message, spell))
-
 end
 
 -- castGUID replaces rank (spell ranks were removed in modern WoW)
 local currentspell = { ["spell"] = nil, ["castGUID"] = nil, ["target"] = nil }
-local failed = false
 
 local function SetDefault(key, value)
   Debug("checking to see if "..key.." is set")
@@ -198,6 +222,7 @@ local function SetAllDefaults()
   SetDefault("OnlyPartyRaidGuild", true)
   SetDefault("Active", true)
   SetDefault("InBattlegrounds", true)
+  SetDefault("OnlyWhenHealer", true)
   SetDefault("DoOutOfRange", true)
   SetDefault("OutOfRange", CHYstrings.OutOfRange)
   SetDefault("DoLineOfSight", true)
@@ -264,6 +289,17 @@ function CantHealYou_OnEvent(self, event, arg1, arg2, arg3, arg4)
         CHYconfig.Version = GetAddOnMetadata("CantHealYou", "Version")
       end
       CantHealYouFrame:UnregisterEvent("ADDON_LOADED")
+      -- Set initial healer state based on current spec
+      UpdateHealerState()
+      -- Register in the addon compartment (minimap addon button, 10.0+)
+      if AddonCompartmentFrame then
+        AddonCompartmentFrame:RegisterAddon({
+          text = "Can't Heal You",
+          icon = "Interface\\Icons\\Spell_Holy_HolyBolt",
+          notCheckable = true,
+          func = function() CantHealYou_slash("") end,
+        })
+      end
     elseif event == "UNIT_SPELLCAST_SENT" then
         -- Modern WoW args: (unit, target, castGUID, spellID)
         -- Note: spellID is now numeric; spell ranks no longer exist
@@ -318,7 +354,6 @@ function CantHealYou_OnEvent(self, event, arg1, arg2, arg3, arg4)
         end
     elseif event == "PLAYER_REGEN_ENABLED" or event == "PLAYER_REGEN_DISABLED" then
       -- entering or leaving combat, so clear timers
-      -- (was "timestamps" in original - bug fix: variable is named "timestamp")
       timestamp = {}
       if event == "PLAYER_REGEN_DISABLED" then
         Debug("entering combat")
@@ -328,15 +363,11 @@ function CantHealYou_OnEvent(self, event, arg1, arg2, arg3, arg4)
         incombat = false
       end
     elseif event == "PLAYER_ROLES_ASSIGNED" then
-      -- not used right now, but for possible future use
       Debug("role assigned")
-      local isTank, isHealer, isDamage = UnitGroupRolesAssigned("player")
-      if isHealer then
-        Debug("player has been assigned as healer")
-        imahealer = true
-      else
-        imahealer = false
-      end
+      UpdateHealerState()
+    elseif event == "PLAYER_SPECIALIZATION_CHANGED" then
+      Debug("spec changed")
+      UpdateHealerState()
     elseif event == "TAXIMAP_CLOSED" then
       -- when WoW puts you on a taxi, it sends PLAYER_CONTROL_LOST before
       -- UnitOnTaxi("player") will return true.  Thus, we have to use this
@@ -354,7 +385,8 @@ function CantHealYou_OnEvent(self, event, arg1, arg2, arg3, arg4)
     elseif event == "PLAYER_CONTROL_GAINED" or event == "PLAYER_DEAD" then
       if not incapacitated then return else incapacitated = false end
       if not CHYconfig.DoLostControl then return end
-      Broadcast(CHYconfig.ControlRegained)
+      -- Bug fix: was CHYconfig.ControlRegained (key doesn't exist); correct key is GainedControl
+      Broadcast(CHYconfig.GainedControl)
     else
         -- UNIT_SPELLCAST_STOP, UNIT_SPELLCAST_CHANNEL_STOP, or UNIT_SPELLCAST_SUCCEEDED
         -- Modern WoW args: (unit, castGUID, spellID)
@@ -368,7 +400,8 @@ function CantHealYou_OnEvent(self, event, arg1, arg2, arg3, arg4)
         if incapacitated then
           incapacitated = false
           if CHYconfig.DoLostControl then
-            Broadcast(CHYconfig.ControlRegained)
+            -- Bug fix: was CHYconfig.ControlRegained; correct key is GainedControl
+            Broadcast(CHYconfig.GainedControl)
           end
         end
     end
@@ -388,12 +421,19 @@ end
 function CantHealYou_slash(str)
   local cmd = string.lower(str)
 
-  if cmd == "debug" then
+  if cmd == "help" or cmd == "" then
+    print("|cff00ccffCan't Heal You|r v"..tostring(CHYconfig and CHYconfig.Version or "?").." commands:")
+    print("  |cffffff00/chy|r — open options panel")
+    print("  |cffffff00/chy debug|r — toggle debug mode")
+    print("  |cffffff00/chy reset|r — reset this character's config to defaults")
+    print("  |cffffff00/chy resetall|r — reset all characters' config to defaults")
+    print("  |cffffff00/chyw [spell]|r — manually test if target is in range of [spell]")
+  elseif cmd == "debug" then
     debugmode = not debugmode
     if debugmode then
-      print("Debug on.")
+      print("Can't Heal You: Debug on.")
     else
-      print("Debug off.")
+      print("Can't Heal You: Debug off.")
     end
   elseif cmd == "reset" or cmd == "resetall" then
     CHYconfig = {}
@@ -401,6 +441,7 @@ function CantHealYou_slash(str)
       CantHealYouConfig = {}
     end
     SetAllDefaults()
+    print("Can't Heal You: Config reset.")
   else
     -- Open the options panel using the modern Settings API if available
     if Settings and CantHealYouOptionsCategory then
@@ -428,13 +469,14 @@ CantHealYouFrame:RegisterEvent("UNIT_SPELLCAST_STOP")
 -- Fixed: was UNIT_SPELLCAST_CHANNELED_STOP (typo) in original
 CantHealYouFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
 CantHealYouFrame:RegisterEvent("PLAYER_ROLES_ASSIGNED")
+CantHealYouFrame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
 CantHealYouFrame:RegisterEvent("PLAYER_CONTROL_LOST")
 CantHealYouFrame:RegisterEvent("PLAYER_CONTROL_GAINED")
 CantHealYouFrame:RegisterEvent("PLAYER_DEAD")
 CantHealYouFrame:RegisterEvent("UI_ERROR_MESSAGE")
 CantHealYouFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 CantHealYouFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
-CantHealYouFrame:RegisterEvent("TAXIMAP_OPENED")
+-- Note: TAXIMAP_OPENED removed (was registered but had no handler)
 CantHealYouFrame:RegisterEvent("TAXIMAP_CLOSED")
 
 -- END OF MAIN CODE.  From here down, this is stuff for the options
@@ -512,11 +554,9 @@ function CantHealYouOptions_Save()
   CHYconfig.AuraBounced = CantHealYouOptionsAuraBounced:GetText()
 
   CHYconfig.Interval = tonumber(CantHealYouOptionsInterval:GetText())
-  -- Fixed: was typeof() (invalid) in original; correct Lua function is type()
   if type(CHYconfig.Interval) ~= "number" then
     CHYconfig.Interval = 0
   end
-
 end
 
 function CantHealYouOptions_OnLoad(self)
@@ -545,44 +585,4 @@ function CantHealYouOptions_CheckButtonText(self, text, tooltiptext)
   local textobj = _G[self:GetName().."Text"]
   textobj:SetText(text)
   self.tooltipText = tooltiptext
-end
-
-function CantHealYouOptions_SaveDefaults()
-  CantHealYou_Config.OnlyPartyRaidGuild = toboolean(CantHealYouOptionsOnlyPartyRaidGuild:GetChecked())
-  CantHealYou_Config.Active = toboolean(CantHealYouOptionsActive:GetChecked())
-
-  CantHealYou_Config.DoOutOfRange = toboolean(CantHealYouOptionsDoOutOfRange:GetChecked())
-  CantHealYou_Config.OutOfRange = CantHealYouOptionsOutOfRange:GetText()
-
-  CantHealYou_Config.DoLineOfSight = toboolean(CantHealYouOptionsDoLineOfSight:GetChecked())
-  CantHealYou_Config.LineOfSight = CantHealYouOptionsLineOfSight:GetText()
-
-  CantHealYou_Config.DoInterrupted = toboolean(CantHealYouOptionsDoInterrupted:GetChecked())
-  CantHealYou_Config.Interrupted = CantHealYouOptionsInterrupted:GetText()
-
-  CantHealYou_Config.DoLostControl = toboolean(CantHealYouOptionsDoLostControl:GetChecked())
-  CantHealYou_Config.LostControl = CantHealYouOptionsLostControl:GetText()
-  CantHealYou_Config.GainedControl = CantHealYouOptionsGainedControl:GetText()
-
-  CantHealYou_Config.DoAuraBounced = toboolean(CantHealYouOptionsDoAuraBounced:GetChecked())
-  CantHealYou_Config.AuraBounced = CantHealYouOptionsAuraBounced:GetText()
-
-  CantHealYou_Config.Interval = tonumber(CantHealYouOptionsInterval:GetText())
-end
-
-function CantHealYouOptions_LoadDefaults()
-  ShowDefaultValue("OnlyPartyRaidGuild")
-  ShowDefaultValue("Active")
-  ShowDefaultValue("DoOutOfRange")
-  ShowDefaultValue("OutOfRange")
-  ShowDefaultValue("DoLineOfSight")
-  ShowDefaultValue("LineOfSight")
-  ShowDefaultValue("DoInterrupted")
-  ShowDefaultValue("Interrupted")
-  ShowDefaultValue("DoLostControl")
-  ShowDefaultValue("LostControl")
-  ShowDefaultValue("GainedControl")
-  ShowDefaultValue("DoAuraBounced")
-  ShowDefaultValue("AuraBounced")
-  ShowDefaultValue("Interval")
 end
