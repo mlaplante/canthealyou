@@ -301,8 +301,6 @@ function CantHealYou_OnEvent(self, event, arg1, arg2, arg3, arg4)
         CHYconfig.Version = GetAddOnMetadata("CantHealYou", "Version")
       end
       CantHealYouFrame:UnregisterEvent("ADDON_LOADED")
-      -- Set initial healer state based on current spec
-      UpdateHealerState()
       -- Register in the addon compartment (minimap addon button, 10.0+)
       if AddonCompartmentFrame then
         AddonCompartmentFrame:RegisterAddon({
@@ -379,6 +377,10 @@ function CantHealYou_OnEvent(self, event, arg1, arg2, arg3, arg4)
         Debug("leaving combat")
         incombat = false
       end
+    elseif event == "PLAYER_ENTERING_WORLD" then
+      -- GetSpecialization() is not reliable during ADDON_LOADED; update here
+      -- once the player is fully in the world
+      UpdateHealerState()
     elseif event == "PLAYER_ROLES_ASSIGNED" then
       Debug("role assigned")
       UpdateHealerState()
@@ -488,6 +490,7 @@ CantHealYouFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 CantHealYouFrame:RegisterEvent("UNIT_SPELLCAST_STOP")
 -- Fixed: was UNIT_SPELLCAST_CHANNELED_STOP (typo) in original
 CantHealYouFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
+CantHealYouFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 CantHealYouFrame:RegisterEvent("PLAYER_ROLES_ASSIGNED")
 CantHealYouFrame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
 CantHealYouFrame:RegisterEvent("PLAYER_CONTROL_LOST")
