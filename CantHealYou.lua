@@ -529,9 +529,9 @@ local function ShowOptionValue(name)
   elseif mytype == "number" then
     UIvar:SetText(tostring(CHYconfig[name]))
   elseif mytype == "string" then
-    UIvar:SetText(CHYconfig[name])
+    UIvar:SetText(CHYconfig[name] or "")
   else
-    UIvar:SetText("")
+    if UIvar.SetText then UIvar:SetText("") end
   end
 end
 
@@ -636,8 +636,15 @@ function CantHealYouOptions_OnLoad(self)
 end
 
 function CantHealYouOptions_CheckButtonText(self, text, tooltiptext)
-  local textobj = _G[self:GetName().."Text"]
-  textobj:SetText(text)
+  -- In modern WoW, UICheckButtonTemplate may expose the text label as self.text
+  -- rather than a global named $parentText. Try both.
+  local textobj = _G[self:GetName().."Text"] or self.text
+  if textobj and text then
+    textobj:SetText(text)
+  elseif text then
+    -- Last resort: set it on the button itself (Button:SetText is always available)
+    self:SetText(text)
+  end
   self.tooltipText = tooltiptext
   -- Modern WoW: the old InterfaceOptions system no longer reads tooltipText automatically,
   -- so wire up tooltip display manually.
