@@ -53,6 +53,17 @@ end
 
 -- Update healer state based on current spec role.
 -- Called on login, spec change, and role assignment.
+-- IsInGroup() / IsInRaid() without args only check the HOME party category.
+-- LFG/dungeon finder groups use LE_PARTY_CATEGORY_INSTANCE and must be checked
+-- explicitly. These helpers cover both so the addon works in all group contexts.
+local function IsInAnyRaid()
+  return IsInRaid(LE_PARTY_CATEGORY_HOME) or IsInRaid(LE_PARTY_CATEGORY_INSTANCE)
+end
+
+local function IsInAnyGroup()
+  return IsInGroup(LE_PARTY_CATEGORY_HOME) or IsInGroup(LE_PARTY_CATEGORY_INSTANCE)
+end
+
 local function UpdateHealerState()
   local specIndex = GetSpecialization()
   if specIndex then
@@ -61,8 +72,8 @@ local function UpdateHealerState()
   else
     imahealer = false
   end
-  -- Group-assigned role can override spec detection
-  if IsInGroup() then
+  -- Group-assigned role can override spec detection (checks home and instance groups)
+  if IsInAnyGroup() then
     local _, isHealer, _ = UnitGroupRolesAssigned("player")
     if isHealer then imahealer = true end
   end
@@ -79,14 +90,13 @@ local function FindUnitFor(who)
   if GetUnitName("target", true) == who then return "target" end
   if GetUnitName("focus", true) == who then return "focus" end
 
-  -- Modern WoW: use IsInRaid/IsInGroup/GetNumGroupMembers instead of
-  -- deprecated GetNumRaidMembers/GetNumPartyMembers
-  if IsInRaid() then
+  -- Check both home and instance (LFG) raid/party groups
+  if IsInAnyRaid() then
     size = GetNumGroupMembers()
     for i = 1, size do
       if GetUnitName("raid"..i, true) == who then return "raid"..i end
     end
-  elseif IsInGroup() then
+  elseif IsInAnyGroup() then
     size = GetNumGroupMembers()
     for i = 1, size do
       if GetUnitName("party"..i, true) == who then return "party"..i end
@@ -110,6 +120,10 @@ local function Whisper(who, message)
 
   -- get the name for who to whisper
   local name = GetUnitName(who, true)
+  if not name then
+    Debug("Whisper: could not resolve name for unit "..tostring(who))
+    return
+  end
   name = gsub(name, " ", "")
 
   Debug("Called Whisper for "..name.." with message "..message)
@@ -152,10 +166,10 @@ local function Broadcast(message)
   -- Only broadcast if player is in a healer spec (when OnlyWhenHealer is enabled)
   if CHYconfig.OnlyWhenHealer and not imahealer then return end
 
-  -- Modern WoW: use IsInRaid/IsInGroup instead of GetNumRaidMembers/GetNumPartyMembers
-  if IsInRaid() then
+  -- Check both home and instance (LFG) raid/party groups
+  if IsInAnyRaid() then
     group = "RAID"
-  elseif IsInGroup() then
+  elseif IsInAnyGroup() then
     group = "PARTY"
   else
     -- we're not in a group, no one to broadcast to
@@ -311,8 +325,13 @@ function CantHealYou_OnEvent(self, event, arg1, arg2, arg3, arg4)
         end
     elseif event == "UNIT_SPELLCAST_FAILED" or event == "UNIT_SPELLCAST_FAILED_QUIET" then
         -- Modern WoW args: (unit, castGUID, spellID)
+        -- Clear currentspell on failure so stale data doesn't affect a subsequent cast
+        -- if no matching UI_ERROR_MESSAGE fires to clear it (e.g. unhandled failure reason)
         if arg1 == "player" and arg2 == currentspell.castGUID then
             Debug("cast of "..tostring(currentspell.spell).." on "..tostring(currentspell.target).." failed")
+            currentspell.spell = nil
+            currentspell.castGUID = nil
+            currentspell.target = nil
         end
     elseif event == "UI_ERROR_MESSAGE" then
         local message
@@ -421,9 +440,17 @@ end
 function CantHealYou_slash(str)
   local cmd = string.lower(str)
 
-  if cmd == "help" or cmd == "" then
+  if cmd == "" then
+    -- No args: open the options panel
+    if Settings and CantHealYouOptionsCategory then
+      Settings.OpenToCategory(CantHealYouOptionsCategory:GetID())
+    elseif InterfaceOptionsFrame_OpenToCategory then
+      InterfaceOptionsFrame_OpenToCategory(CantHealYouOptions)
+    end
+  elseif cmd == "help" then
     print("|cff00ccffCan't Heal You|r v"..tostring(CHYconfig and CHYconfig.Version or "?").." commands:")
     print("  |cffffff00/chy|r — open options panel")
+    print("  |cffffff00/chy help|r — show this help text")
     print("  |cffffff00/chy debug|r — toggle debug mode")
     print("  |cffffff00/chy reset|r — reset this character's config to defaults")
     print("  |cffffff00/chy resetall|r — reset all characters' config to defaults")
@@ -443,12 +470,7 @@ function CantHealYou_slash(str)
     SetAllDefaults()
     print("Can't Heal You: Config reset.")
   else
-    -- Open the options panel using the modern Settings API if available
-    if Settings and CantHealYouOptionsCategory then
-      Settings.OpenToCategory(CantHealYouOptionsCategory:GetID())
-    elseif InterfaceOptionsFrame_OpenToCategory then
-      InterfaceOptionsFrame_OpenToCategory(CantHealYouOptions)
-    end
+    print("Can't Heal You: Unknown command '"..str.."'. Type /chy help for commands.")
   end
 end
 
@@ -500,18 +522,6 @@ local function ShowOptionValue(name)
   end
 end
 
-local function ShowDefaultValue(name)
-  local mytype = type(CantHealYou_Config[name])
-  local UIvar = _G["CantHealYouOptions"..name]
-
-  if mytype == "boolean" then
-    UIvar:SetChecked(CantHealYou_Config[name])
-  elseif mytype == "number" then
-    UIvar:SetText(tostring(CHYconfig[name]))
-  else
-    UIvar:SetText(CantHealYou_Config[name])
-  end
-end
 
 function CantHealYouOptions_OnShow()
   ShowOptionValue("OnlyPartyRaidGuild")
@@ -585,4 +595,16 @@ function CantHealYouOptions_CheckButtonText(self, text, tooltiptext)
   local textobj = _G[self:GetName().."Text"]
   textobj:SetText(text)
   self.tooltipText = tooltiptext
+  -- Modern WoW: the old InterfaceOptions system no longer reads tooltipText automatically,
+  -- so wire up tooltip display manually.
+  if tooltiptext then
+    self:SetScript("OnEnter", function(btn)
+      GameTooltip:SetOwner(btn, "ANCHOR_RIGHT")
+      GameTooltip:SetText(btn.tooltipText, 1, 1, 1, true)
+      GameTooltip:Show()
+    end)
+    self:SetScript("OnLeave", function()
+      GameTooltip:Hide()
+    end)
+  end
 end

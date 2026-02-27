@@ -39,7 +39,7 @@
     <Frames>
     
       -- Master Switch
-      <CheckButton name="$parentActive" inherits="InterfaceOptionsCheckButtonTemplate">
+      <CheckButton name="$parentActive" inherits="UICheckButtonTemplate">
         <Anchors>
           <Anchor point="BOTTOMLEFT" relativeTo="$parentVersion" relativePoint="BOTTOMRIGHT">
             <Offset x="300" y="-3"/>
@@ -51,7 +51,7 @@
       </CheckButton>
        
       -- Only Party/Raid/Guild switch
-      <CheckButton name="$parentOnlyPartyRaidGuild" inherits="InterfaceOptionsCheckButtonTemplate">
+      <CheckButton name="$parentOnlyPartyRaidGuild" inherits="UICheckButtonTemplate">
         <Anchors>
           <Anchor point="BOTTOMLEFT" relativeTo="$parentListLabel" relativePoint="BOTTOMRIGHT">
             <Offset x="10" y="-3"/>
@@ -63,7 +63,7 @@
       </CheckButton>
       
       -- Battleground switch
-      <CheckButton name="$parentInBattlegrounds" inherits="InterfaceOptionsCheckButtonTemplate">
+      <CheckButton name="$parentInBattlegrounds" inherits="UICheckButtonTemplate">
         <Anchors>
           <Anchor point="LEFT" relativeTo="$parentOnlyPartyRaidGuild" relativePoint="RIGHT">
             <Offset x="220" y="0"/>
@@ -75,7 +75,7 @@
       </CheckButton>
        
       -- Out of Range switch
-      <CheckButton name="$parentDoOutOfRange" inherits="InterfaceOptionsCheckButtonTemplate">
+      <CheckButton name="$parentDoOutOfRange" inherits="UICheckButtonTemplate">
         <Anchors>
           <Anchor point="TOPLEFT">
             <Offset><AbsDimension x="32" y="-97"/></Offset>
@@ -140,7 +140,7 @@
       </EditBox>
 
       -- Line of Sight switch
-      <CheckButton name="$parentDoLineOfSight" inherits="InterfaceOptionsCheckButtonTemplate">
+      <CheckButton name="$parentDoLineOfSight" inherits="UICheckButtonTemplate">
         <Anchors>
           <Anchor point="TOPLEFT" relativeTo="$parentDoOutOfRange" relativePoint="BOTTOMLEFT">
             <Offset x="0" y="-23"/>
@@ -205,7 +205,7 @@
       </EditBox>
 
       -- Buff Bounced switch
-      <CheckButton name="$parentDoAuraBounced" inherits="InterfaceOptionsCheckButtonTemplate">
+      <CheckButton name="$parentDoAuraBounced" inherits="UICheckButtonTemplate">
         <Anchors>
           <Anchor point="TOPLEFT" relativeTo="$parentDoLineOfSight" relativePoint="BOTTOMLEFT">
             <Offset x="0" y="-23"/>
@@ -270,7 +270,7 @@
       </EditBox>
 
       -- Interrupted switch
-      <CheckButton name="$parentDoInterrupted" inherits="InterfaceOptionsCheckButtonTemplate">
+      <CheckButton name="$parentDoInterrupted" inherits="UICheckButtonTemplate">
         <Anchors>
           <Anchor point="TOPLEFT" relativeTo="$parentDoAuraBounced" relativePoint="BOTTOMLEFT">
             <Offset x="0" y="-23"/>
@@ -335,7 +335,7 @@
       </EditBox>
 
       -- Incapacitated switch
-      <CheckButton name="$parentDoLostControl" inherits="InterfaceOptionsCheckButtonTemplate">
+      <CheckButton name="$parentDoLostControl" inherits="UICheckButtonTemplate">
         <Anchors>
           <Anchor point="TOPLEFT" relativeTo="$parentDoInterrupted" relativePoint="BOTTOMLEFT">
             <Offset x="0" y="-23"/>
