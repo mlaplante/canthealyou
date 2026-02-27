@@ -1,6 +1,6 @@
 ## Interface: 120000
 ## Title: Can't Heal You
-## Version: 4.0
+## Version: 4.1
 ## Author: Kroth (Haomarush)
 ## Notes: Attempts to automatically detect when someone is out of line of sight or range of a heal/buff and whisper them. Updated for WoW Midnight by Kroth.
 ## SavedVariables: CantHealYou_Config

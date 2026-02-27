@@ -1,0 +1,16 @@
+{
+  "releases": [
+    {
+      "name": "Can't Heal You",
+      "version": "4.1",
+      "filename": "CantHealYou-4.1.zip",
+      "nolib": false,
+      "metadata": [
+        {
+          "flavor": "mainline",
+          "interface": 120000
+        }
+      ]
+    }
+  ]
+}
