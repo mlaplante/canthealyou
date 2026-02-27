@@ -1,6 +1,10 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <Frame name="CantHealYouOptions" hidden="true">
-  
+  <Frame name="CantHealYouOptions" hidden="true" frameStrata="DIALOG">
+    <Size><AbsDimension x="700" y="470"/></Size>
+    <Anchors>
+      <Anchor point="CENTER"/>
+    </Anchors>
+
     <Layers>
       <Layer level="OVERLAY">
         <FontString name="$parentTitle" font="GameFontNormalLarge" justifyH="LEFT" justifyV="TOP" text="CHY">

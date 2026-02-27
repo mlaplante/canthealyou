@@ -439,13 +439,15 @@ function CantHealYou_slash(str)
   local cmd = string.lower(str)
 
   if cmd == "" then
-    -- Settings.OpenToCategory is a Blizzard-protected function and cannot be called
-    -- by addon code. Direct the player to the panel instead.
-    print("|cff00ccffCan't Heal You|r: Open |cffffd200Game Menu → Interface → AddOns → Can't Heal You|r to configure.")
-    print("Type |cffffff00/chy help|r for slash command options.")
+    if CantHealYouOptions:IsShown() then
+      CantHealYouOptions:Hide()
+    else
+      CantHealYouOptions_OnShow()
+      CantHealYouOptions:Show()
+    end
   elseif cmd == "help" then
     print("|cff00ccffCan't Heal You|r v"..tostring(CHYconfig and CHYconfig.Version or "?").." commands:")
-    print("  |cffffff00/chy|r — open options panel")
+    print("  |cffffff00/chy|r — open/close options panel")
     print("  |cffffff00/chy help|r — show this help text")
     print("  |cffffff00/chy debug|r — toggle debug mode")
     print("  |cffffff00/chy reset|r — reset this character's config to defaults")
@@ -570,15 +572,47 @@ function CantHealYouOptions_OnLoad(self)
   CantHealYouOptionsListLabel:SetText(CHYstrings.UIsendwarningsfor)
   CantHealYouOptionsIntervalLabel:SetText(CHYstrings.UIinterval)
 
+  -- Make it a standalone draggable popup window
+  self:SetMovable(true)
+  self:EnableMouse(true)
+  self:RegisterForDrag("LeftButton")
+  self:SetScript("OnDragStart", self.StartMoving)
+  self:SetScript("OnDragStop", self.StopMovingOrSizing)
+
+  -- Apply backdrop (WoW 9.0+ requires BackdropTemplateMixin)
+  if BackdropTemplateMixin then
+    Mixin(self, BackdropTemplateMixin)
+  end
+  self:SetBackdrop({
+    bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+    edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+    tile = true, tileSize = 32, edgeSize = 32,
+    insets = { left = 11, right = 12, top = 12, bottom = 11 },
+  })
+
+  -- Close button (top right corner)
+  local closeBtn = CreateFrame("Button", nil, self, "UIPanelCloseButton")
+  closeBtn:SetPoint("TOPRIGHT", self, "TOPRIGHT", -5, -5)
+  closeBtn:SetScript("OnClick", function() self:Hide() end)
+
+  -- Save & Close button (bottom right)
+  local saveBtn = CreateFrame("Button", nil, self, "UIPanelButtonTemplate")
+  saveBtn:SetSize(120, 22)
+  saveBtn:SetText("Save & Close")
+  saveBtn:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -20, 10)
+  saveBtn:SetScript("OnClick", function()
+    CantHealYouOptions_Save()
+    self:Hide()
+  end)
+
+  -- Also register with the Settings API so Game Menu → Interface → AddOns works
   if Settings and Settings.RegisterCanvasLayoutCategory then
-    -- Modern Settings API (10.0+)
     local category = Settings.RegisterCanvasLayoutCategory(self, "Can't Heal You")
     Settings.RegisterAddOnCategory(category)
     self.OnCommit = function() CantHealYouOptions_Save() end
     self.OnRefresh = function() CantHealYouOptions_OnShow() end
     self.OnDefault = function() end
   else
-    -- Legacy Interface Options API (pre-10.0)
     self.name = "Can't Heal You"
     self.okay = function() CantHealYouOptions_Save() end
     self.cancel = nil
