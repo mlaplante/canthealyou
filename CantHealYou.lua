@@ -454,7 +454,12 @@ function CantHealYou_warn(str)
     end
   end
   Debug("testing range for "..spell.." on "..target)
-  local inRange = IsSpellInRange(spell, target)
+  local inRange
+  if C_Spell and C_Spell.IsSpellInRange then
+    inRange = C_Spell.IsSpellInRange(spell, target)
+  else
+    inRange = IsSpellInRange(spell, target)
+  end
   -- Handle both modern (true/false) and legacy (1/0) return values
   if inRange == false or inRange == 0 then
     DoTheWarn(target, spell, CHYconfig.OutOfRange)
