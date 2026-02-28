@@ -86,6 +86,7 @@ local function FindUnitFor(who)
   -- other servers
   if GetUnitName("player", true) == who then return "player" end
   if GetUnitName("target", true) == who then return "target" end
+  if GetUnitName("mouseover", true) == who then return "mouseover" end
   if GetUnitName("focus", true) == who then return "focus" end
 
   -- Check both home and instance (LFG) raid/party groups
@@ -217,7 +218,7 @@ local function DoTheWarn(who, spell, message)
 end
 
 -- castGUID replaces rank (spell ranks were removed in modern WoW)
-local currentspell = { ["spell"] = nil, ["castGUID"] = nil, ["target"] = nil }
+local currentspell = { ["spell"] = nil, ["castGUID"] = nil, ["target"] = nil, ["mouseover"] = nil }
 
 local function SetDefault(key, value)
   Debug("checking to see if "..key.." is set")
@@ -322,9 +323,12 @@ function CantHealYou_OnEvent(self, event, arg1, arg2, arg3, arg4)
         -- be compared with ==. Use GetUnitName("target") instead to get a regular string.
         if arg1 == "player" then
             currentspell.target = GetUnitName("target", true)
+            -- Also capture mouseover for mouseover heal macros ([@mouseover])
+            local moName = GetUnitName("mouseover", true)
+            currentspell.mouseover = (moName and moName ~= currentspell.target) and moName or nil
             currentspell.castGUID = arg3
             currentspell.spell = GetSpellNameFromID(arg4)
-            Debug(arg1.." is casting "..tostring(currentspell.spell).." on "..tostring(currentspell.target))
+            Debug(arg1.." is casting "..tostring(currentspell.spell).." on "..tostring(currentspell.target).." (mouseover: "..tostring(currentspell.mouseover)..")")
         end
     elseif event == "UNIT_SPELLCAST_FAILED" or event == "UNIT_SPELLCAST_FAILED_QUIET" then
         -- Modern WoW args: (unit, castGUID, spellID)
@@ -364,13 +368,16 @@ function CantHealYou_OnEvent(self, event, arg1, arg2, arg3, arg4)
           return
         end
         -- we only reach here if we didn't hit the default "else"
-        if currentspell.target then
-          local mytarget = FindUnitFor(currentspell.target)
-          Debug("FindUnitFor returned unit "..mytarget)
+        -- Prefer mouseover target (for [@mouseover] heal macros) over regular target
+        local warnTarget = currentspell.mouseover or currentspell.target
+        if warnTarget then
+          local mytarget = FindUnitFor(warnTarget)
+          Debug("FindUnitFor returned unit "..tostring(mytarget))
           DoTheWarn(mytarget, currentspell.spell, message)
           currentspell.spell = nil
           currentspell.castGUID = nil
           currentspell.target = nil
+          currentspell.mouseover = nil
         end
     elseif event == "PLAYER_REGEN_ENABLED" or event == "PLAYER_REGEN_DISABLED" then
       -- entering or leaving combat, so clear timers
@@ -420,6 +427,7 @@ function CantHealYou_OnEvent(self, event, arg1, arg2, arg3, arg4)
             currentspell.spell = nil
             currentspell.castGUID = nil
             currentspell.target = nil
+            currentspell.mouseover = nil
         end
         if incapacitated then
           incapacitated = false
@@ -437,7 +445,14 @@ function CantHealYou_warn(str)
     print("Can't Heal You: Usage: /chyw [spell name]")
     return
   end
-  if not target then target = "target" end
+  if not target then
+    -- Prefer mouseover if it's a valid friendly unit (supports mouseover heal macros)
+    if UnitExists("mouseover") and UnitIsFriend("player", "mouseover") and not UnitIsUnit("mouseover", "player") then
+      target = "mouseover"
+    else
+      target = "target"
+    end
+  end
   Debug("testing range for "..spell.." on "..target)
   local inRange = IsSpellInRange(spell, target)
   -- Handle both modern (true/false) and legacy (1/0) return values
