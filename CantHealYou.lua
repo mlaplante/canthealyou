@@ -218,7 +218,8 @@ local function DoTheWarn(who, spell, message)
 end
 
 -- castGUID replaces rank (spell ranks were removed in modern WoW)
-local currentspell = { ["spell"] = nil, ["castGUID"] = nil, ["target"] = nil, ["mouseover"] = nil }
+-- targetUnit stores a unit token ("target", "mouseover", etc.) — never a secret string
+local currentspell = { ["spell"] = nil, ["castGUID"] = nil, ["targetUnit"] = nil }
 
 local function SetDefault(key, value)
   Debug("checking to see if "..key.." is set")
@@ -322,14 +323,17 @@ function CantHealYou_OnEvent(self, event, arg1, arg2, arg3, arg4)
         -- arg2 is the target name but may be a "secret string" in modern WoW that cannot
         -- be compared with ==. Use GetUnitName("target") instead to get a regular string.
         if arg1 == "player" then
-            currentspell.target = GetUnitName("target", true)
-            -- Also capture mouseover for mouseover heal macros ([@mouseover])
-            -- Use UnitIsUnit to compare units instead of secret strings (which can't use ==)
-            local moName = GetUnitName("mouseover", true)
-            currentspell.mouseover = (moName and not UnitIsUnit("mouseover", "target")) and moName or nil
+            -- Store unit token only (never store secret strings from GetUnitName)
+            -- Prefer "mouseover" for [@mouseover] heal macros when it's a different friendly unit
+            if UnitExists("mouseover") and not UnitIsUnit("mouseover", "target") and
+               UnitIsFriend("player", "mouseover") and not UnitIsUnit("mouseover", "player") then
+                currentspell.targetUnit = "mouseover"
+            else
+                currentspell.targetUnit = "target"
+            end
             currentspell.castGUID = arg3
             currentspell.spell = GetSpellNameFromID(arg4)
-            Debug(arg1.." is casting "..tostring(currentspell.spell).." on "..tostring(currentspell.target).." (mouseover: "..tostring(currentspell.mouseover)..")")
+            Debug(arg1.." is casting "..tostring(currentspell.spell).." on unit "..tostring(currentspell.targetUnit))
         end
     elseif event == "UNIT_SPELLCAST_FAILED" or event == "UNIT_SPELLCAST_FAILED_QUIET" then
         -- Modern WoW args: (unit, castGUID, spellID)
@@ -337,7 +341,7 @@ function CantHealYou_OnEvent(self, event, arg1, arg2, arg3, arg4)
         -- UI_ERROR_MESSAGE, so clearing here would wipe the target before we can warn them.
         -- currentspell is cleared in UI_ERROR_MESSAGE (after warning) and in the stop/succeeded handler.
         if arg1 == "player" and arg2 == currentspell.castGUID then
-            Debug("cast of "..tostring(currentspell.spell).." on "..tostring(currentspell.target).." failed (waiting for UI_ERROR_MESSAGE)")
+            Debug("cast of "..tostring(currentspell.spell).." on "..tostring(currentspell.targetUnit).." failed (waiting for UI_ERROR_MESSAGE)")
         end
     elseif event == "UI_ERROR_MESSAGE" then
         local message
@@ -369,16 +373,13 @@ function CantHealYou_OnEvent(self, event, arg1, arg2, arg3, arg4)
           return
         end
         -- we only reach here if we didn't hit the default "else"
-        -- Prefer mouseover target (for [@mouseover] heal macros) over regular target
-        local warnTarget = currentspell.mouseover or currentspell.target
-        if warnTarget then
-          local mytarget = FindUnitFor(warnTarget)
-          Debug("FindUnitFor returned unit "..tostring(mytarget))
-          DoTheWarn(mytarget, currentspell.spell, message)
+        -- targetUnit is a unit token — pass directly, no secret string comparison needed
+        if currentspell.targetUnit then
+          Debug("warning unit "..tostring(currentspell.targetUnit))
+          DoTheWarn(currentspell.targetUnit, currentspell.spell, message)
           currentspell.spell = nil
           currentspell.castGUID = nil
-          currentspell.target = nil
-          currentspell.mouseover = nil
+          currentspell.targetUnit = nil
         end
     elseif event == "PLAYER_REGEN_ENABLED" or event == "PLAYER_REGEN_DISABLED" then
       -- entering or leaving combat, so clear timers
@@ -424,11 +425,10 @@ function CantHealYou_OnEvent(self, event, arg1, arg2, arg3, arg4)
         -- Modern WoW args: (unit, castGUID, spellID)
         if arg1 == "player" and arg2 == currentspell.castGUID then
             -- looks to be the spell we're keeping, so release it
-            Debug("cast of "..tostring(currentspell.spell).." on "..tostring(currentspell.target).." ended")
+            Debug("cast of "..tostring(currentspell.spell).." on "..tostring(currentspell.targetUnit).." ended")
             currentspell.spell = nil
             currentspell.castGUID = nil
-            currentspell.target = nil
-            currentspell.mouseover = nil
+            currentspell.targetUnit = nil
         end
         if incapacitated then
           incapacitated = false
