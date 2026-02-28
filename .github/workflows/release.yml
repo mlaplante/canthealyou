@@ -23,10 +23,14 @@ jobs:
       - name: Package and release
         uses: BigWigsMods/packager@v2
 
-      - name: Upload release.json
+      - name: Rename zip and upload release.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG=${GITHUB_REF#refs/tags/}
+          gh release download "$TAG" --pattern "CantHealYou-${TAG}.zip" -D /tmp/release_assets
+          mv "/tmp/release_assets/CantHealYou-${TAG}.zip" "/tmp/release_assets/CantHealYou.zip"
+          gh release upload "$TAG" "/tmp/release_assets/CantHealYou.zip"
+          gh release delete-asset "$TAG" "CantHealYou-${TAG}.zip" --yes
           sed "s/@project-version@/$TAG/g" release.json > /tmp/release.json
           gh release upload "$TAG" /tmp/release.json --clobber
