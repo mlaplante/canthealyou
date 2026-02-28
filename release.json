@@ -3,7 +3,7 @@
     {
       "name": "Can't Heal You",
       "version": "@project-version@",
-      "filename": "CantHealYou.zip",
+      "filename": "CantHealYou-@project-version@.zip",
       "nolib": false,
       "metadata": [
         {
