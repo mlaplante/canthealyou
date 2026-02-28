@@ -1,1 +1,7 @@
 package-as: CantHealYou
+
+ignore:
+  - release.json
+  - .github
+  - social-banner.html
+  - social-banner-preview.png
