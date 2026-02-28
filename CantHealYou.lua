@@ -324,8 +324,9 @@ function CantHealYou_OnEvent(self, event, arg1, arg2, arg3, arg4)
         if arg1 == "player" then
             currentspell.target = GetUnitName("target", true)
             -- Also capture mouseover for mouseover heal macros ([@mouseover])
+            -- Use UnitIsUnit to compare units instead of secret strings (which can't use ==)
             local moName = GetUnitName("mouseover", true)
-            currentspell.mouseover = (moName and moName ~= currentspell.target) and moName or nil
+            currentspell.mouseover = (moName and not UnitIsUnit("mouseover", "target")) and moName or nil
             currentspell.castGUID = arg3
             currentspell.spell = GetSpellNameFromID(arg4)
             Debug(arg1.." is casting "..tostring(currentspell.spell).." on "..tostring(currentspell.target).." (mouseover: "..tostring(currentspell.mouseover)..")")
