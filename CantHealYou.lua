@@ -390,7 +390,6 @@ function CantHealYou_OnEvent(self, event, arg1, arg2, arg3, arg4)
     elseif event == "PLAYER_CONTROL_GAINED" or event == "PLAYER_DEAD" then
       if not incapacitated then return else incapacitated = false end
       if not CHYconfig.DoLostControl then return end
-      -- Bug fix: was CHYconfig.ControlRegained (key doesn't exist); correct key is GainedControl
       Broadcast(CHYconfig.GainedControl)
     else
         -- UNIT_SPELLCAST_STOP, UNIT_SPELLCAST_CHANNEL_STOP, or UNIT_SPELLCAST_SUCCEEDED
@@ -405,7 +404,6 @@ function CantHealYou_OnEvent(self, event, arg1, arg2, arg3, arg4)
         if incapacitated then
           incapacitated = false
           if CHYconfig.DoLostControl then
-            -- Bug fix: was CHYconfig.ControlRegained; correct key is GainedControl
             Broadcast(CHYconfig.GainedControl)
           end
         end
@@ -534,6 +532,7 @@ function CantHealYouOptions_OnShow()
   ShowOptionValue("OnlyPartyRaidGuild")
   ShowOptionValue("Active")
   ShowOptionValue("InBattlegrounds")
+  ShowOptionValue("OnlyWhenHealer")
   ShowOptionValue("DoOutOfRange")
   ShowOptionValue("OutOfRange")
   ShowOptionValue("DoLineOfSight")
