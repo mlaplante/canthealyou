@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>Can't Heal You — Social Banner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600&family=IM+Fell+English+SC&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1280px;
+    height: 640px;
+    overflow: hidden;
+    background: #080608;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .banner {
+    position: relative;
+    width: 1280px;
+    height: 640px;
+    overflow: hidden;
+    background: #080608;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* === BACKGROUND LAYERS === */
+
+  .bg-radial {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 70% at 50% 55%, #2a0008 0%, transparent 65%),
+      radial-gradient(ellipse 100% 50% at 50% 100%, #1a000a 0%, transparent 60%),
+      radial-gradient(ellipse 40% 40% at 20% 20%, #0f0008 0%, transparent 50%);
+  }
+
+  .bg-vignette {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 120% 120% at 50% 50%, transparent 40%, #000 100%);
+    z-index: 1;
+  }
+
+  /* Grain texture */
+  .bg-grain {
+    position: absolute;
+    inset: -50%;
+    width: 200%;
+    height: 200%;
+    opacity: 0.045;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+    z-index: 2;
+    animation: grain 0.8s steps(1) infinite;
+  }
+
+  @keyframes grain {
+    0%   { transform: translate(0, 0); }
+    10%  { transform: translate(-2%, -3%); }
+    20%  { transform: translate(3%, 1%); }
+    30%  { transform: translate(-1%, 4%); }
+    40%  { transform: translate(4%, -2%); }
+    50%  { transform: translate(-3%, 0%); }
+    60%  { transform: translate(1%, 3%); }
+    70%  { transform: translate(-4%, 1%); }
+    80%  { transform: translate(2%, -4%); }
+    90%  { transform: translate(-2%, 2%); }
+    100% { transform: translate(3%, -1%); }
+  }
+
+  /* Horizontal scan lines */
+  .bg-lines {
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 3px,
+      rgba(0,0,0,0.18) 3px,
+      rgba(0,0,0,0.18) 4px
+    );
+    z-index: 3;
+  }
+
+  /* === DECORATIVE BORDER === */
+
+  .border-frame {
+    position: absolute;
+    inset: 20px;
+    border: 1px solid rgba(180, 20, 30, 0.25);
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  .border-frame::before {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    border: 1px solid rgba(180, 20, 30, 0.1);
+  }
+
+  /* Corner ornaments */
+  .corner {
+    position: absolute;
+    width: 36px;
+    height: 36px;
+    z-index: 11;
+  }
+  .corner-tl { top: 12px; left: 12px; border-top: 2px solid #8b1a22; border-left: 2px solid #8b1a22; }
+  .corner-tr { top: 12px; right: 12px; border-top: 2px solid #8b1a22; border-right: 2px solid #8b1a22; }
+  .corner-bl { bottom: 12px; left: 12px; border-bottom: 2px solid #8b1a22; border-left: 2px solid #8b1a22; }
+  .corner-br { bottom: 12px; right: 12px; border-bottom: 2px solid #8b1a22; border-right: 2px solid #8b1a22; }
+
+  /* === CONTENT === */
+
+  .content {
+    position: relative;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    width: 100%;
+    height: 100%;
+    padding: 0 100px;
+  }
+
+  /* === LEFT: BROKEN CROSS SYMBOL === */
+
+  .symbol-wrap {
+    position: relative;
+    flex-shrink: 0;
+    width: 280px;
+    height: 280px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Ambient glow behind symbol */
+  .symbol-glow {
+    position: absolute;
+    width: 320px;
+    height: 320px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(160,10,20,0.35) 0%, transparent 70%);
+    animation: pulse 3s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.8; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.08); }
+  }
+
+  .cross-svg {
+    position: relative;
+    z-index: 2;
+    filter: drop-shadow(0 0 18px rgba(200, 20, 30, 0.6)) drop-shadow(0 0 40px rgba(140, 10, 20, 0.35));
+  }
+
+  /* === RIGHT: TEXT === */
+
+  .text-block {
+    flex: 1;
+    padding-left: 70px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .eyebrow {
+    font-family: 'IM Fell English SC', serif;
+    font-size: 13px;
+    letter-spacing: 0.35em;
+    color: rgba(200, 80, 80, 0.7);
+    text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+
+  .title-cant {
+    display: block;
+    font-family: 'Cinzel Decorative', cursive;
+    font-weight: 900;
+    font-size: 82px;
+    line-height: 0.9;
+    color: #c41425;
+    text-shadow:
+      0 0 30px rgba(200,20,30,0.5),
+      0 0 60px rgba(160,10,20,0.3),
+      2px 2px 0 #1a0005,
+      4px 4px 0 #0d0003;
+    letter-spacing: -0.01em;
+  }
+
+  .title-heal {
+    display: block;
+    font-family: 'Cinzel Decorative', cursive;
+    font-weight: 900;
+    font-size: 82px;
+    line-height: 0.9;
+    color: #e8e0d4;
+    text-shadow:
+      0 0 20px rgba(220,200,180,0.15),
+      2px 2px 0 #2a1510,
+      4px 4px 0 #180a08;
+    letter-spacing: -0.01em;
+  }
+
+  .title-you {
+    display: block;
+    font-family: 'Cinzel Decorative', cursive;
+    font-weight: 900;
+    font-size: 82px;
+    line-height: 0.9;
+    color: #e8e0d4;
+    text-shadow:
+      0 0 20px rgba(220,200,180,0.15),
+      2px 2px 0 #2a1510,
+      4px 4px 0 #180a08;
+    letter-spacing: -0.01em;
+    margin-bottom: 28px;
+  }
+
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, #7a1020 0%, rgba(120,16,32,0.3) 70%, transparent 100%);
+    margin-bottom: 22px;
+  }
+
+  .tagline {
+    font-family: 'Cinzel', serif;
+    font-weight: 400;
+    font-size: 15.5px;
+    letter-spacing: 0.08em;
+    color: rgba(210, 175, 155, 0.75);
+    line-height: 1.65;
+    max-width: 540px;
+  }
+
+  .tagline em {
+    font-style: normal;
+    color: rgba(210,100,100,0.85);
+  }
+
+  .footer-row {
+    position: absolute;
+    bottom: 52px;
+    left: 0;
+    right: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 50px;
+  }
+
+  .repo-label {
+    font-family: 'IM Fell English SC', serif;
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    color: rgba(160, 60, 70, 0.55);
+    text-transform: lowercase;
+  }
+
+  .version-label {
+    font-family: 'IM Fell English SC', serif;
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    color: rgba(160, 60, 70, 0.55);
+  }
+
+  /* === Decorative dots on divider === */
+  .divider-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 22px;
+  }
+  .divider-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #8b1a22;
+    flex-shrink: 0;
+  }
+  .divider-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, #7a1020 0%, rgba(120,16,32,0.2) 100%);
+  }
+
+</style>
+</head>
+<body>
+<div class="banner">
+
+  <!-- Background -->
+  <div class="bg-radial"></div>
+  <div class="bg-grain"></div>
+  <div class="bg-lines"></div>
+  <div class="bg-vignette"></div>
+
+  <!-- Border frame -->
+  <div class="border-frame"></div>
+  <div class="corner corner-tl"></div>
+  <div class="corner corner-tr"></div>
+  <div class="corner corner-bl"></div>
+  <div class="corner corner-br"></div>
+
+  <!-- Main content -->
+  <div class="content">
+
+    <!-- Broken healer cross -->
+    <div class="symbol-wrap">
+      <div class="symbol-glow"></div>
+      <svg class="cross-svg" width="240" height="240" viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="crossGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#e8303a"/>
+            <stop offset="60%" stop-color="#b01a22"/>
+            <stop offset="100%" stop-color="#700a12"/>
+          </radialGradient>
+          <radialGradient id="crossGradDim" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#601018" stop-opacity="0.7"/>
+            <stop offset="100%" stop-color="#300508" stop-opacity="0.4"/>
+          </radialGradient>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="3" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <!-- Clip for diagonal slash -->
+          <clipPath id="topHalf">
+            <polygon points="0,0 240,0 240,145 0,100"/>
+          </clipPath>
+          <clipPath id="bottomHalf">
+            <polygon points="0,100 240,145 240,240 0,240"/>
+          </clipPath>
+        </defs>
+
+        <!-- Outer ring, dimmed -->
+        <circle cx="120" cy="120" r="108" stroke="rgba(120,20,30,0.35)" stroke-width="1.5" fill="none"/>
+        <circle cx="120" cy="120" r="100" stroke="rgba(120,20,30,0.2)" stroke-width="1" fill="none"/>
+
+        <!-- Cross shape - top half (above slash) -->
+        <g clip-path="url(#topHalf)">
+          <!-- vertical bar -->
+          <rect x="98" y="30" width="44" height="180" rx="4" fill="url(#crossGrad)"/>
+          <!-- horizontal bar -->
+          <rect x="30" y="98" width="180" height="44" rx="4" fill="url(#crossGrad)"/>
+          <!-- inner highlight -->
+          <rect x="106" y="30" width="10" height="180" rx="2" fill="rgba(255,180,180,0.18)"/>
+          <rect x="30" y="106" width="180" height="10" rx="2" fill="rgba(255,180,180,0.18)"/>
+        </g>
+
+        <!-- Cross shape - bottom half (below slash, dimmer + offset) -->
+        <g clip-path="url(#bottomHalf)" transform="translate(4, 6)">
+          <rect x="98" y="30" width="44" height="180" rx="4" fill="url(#crossGradDim)"/>
+          <rect x="30" y="98" width="180" height="44" rx="4" fill="url(#crossGradDim)"/>
+        </g>
+
+        <!-- The slash — a crack through the middle -->
+        <line x1="20" y1="96" x2="220" y2="148" stroke="#080608" stroke-width="8"/>
+        <line x1="20" y1="92" x2="220" y2="144" stroke="rgba(200,20,30,0.6)" stroke-width="1.5"/>
+        <line x1="20" y1="100" x2="220" y2="152" stroke="rgba(200,20,30,0.4)" stroke-width="1"/>
+
+        <!-- Crack jagged line detail -->
+        <polyline
+          points="20,96 55,94 80,100 105,97 120,120 140,100 165,105 190,99 220,97"
+          stroke="rgba(255,80,80,0.25)" stroke-width="1" fill="none"
+          clip-path="url(#topHalf)"/>
+
+        <!-- Corner decorative marks -->
+        <line x1="30" y1="30" x2="44" y2="30" stroke="rgba(140,20,30,0.5)" stroke-width="1.5"/>
+        <line x1="30" y1="30" x2="30" y2="44" stroke="rgba(140,20,30,0.5)" stroke-width="1.5"/>
+        <line x1="210" y1="30" x2="196" y2="30" stroke="rgba(140,20,30,0.5)" stroke-width="1.5"/>
+        <line x1="210" y1="30" x2="210" y2="44" stroke="rgba(140,20,30,0.5)" stroke-width="1.5"/>
+        <line x1="30" y1="210" x2="44" y2="210" stroke="rgba(140,20,30,0.5)" stroke-width="1.5"/>
+        <line x1="30" y1="210" x2="30" y2="196" stroke="rgba(140,20,30,0.5)" stroke-width="1.5"/>
+        <line x1="210" y1="210" x2="196" y2="210" stroke="rgba(140,20,30,0.5)" stroke-width="1.5"/>
+        <line x1="210" y1="210" x2="210" y2="196" stroke="rgba(140,20,30,0.5)" stroke-width="1.5"/>
+      </svg>
+    </div>
+
+    <!-- Text block -->
+    <div class="text-block">
+      <div class="eyebrow">World of Warcraft &nbsp;·&nbsp; Midnight</div>
+      <span class="title-cant">CAN'T</span>
+      <span class="title-heal">HEAL</span>
+      <span class="title-you">YOU</span>
+      <div class="divider-wrap">
+        <div class="divider-dot"></div>
+        <div class="divider-line"></div>
+      </div>
+      <p class="tagline">
+        Detects when allies are <em>out of range</em> or
+        <em>line of sight</em> and automatically whispers them —
+        so you never take the blame again.
+      </p>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="footer-row">
+    <span class="repo-label">github.com/mlaplante/canthealyou</span>
+    <span class="version-label">WoW Midnight Addon</span>
+  </div>
+
+</div>
+</body>
+</html>
