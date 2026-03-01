@@ -126,7 +126,7 @@ local function Whisper(who, message)
     Debug("Whisper: could not resolve name for unit "..tostring(who))
     return
   end
-  name = gsub(name, " ", "")
+  name = string.gsub(name, " ", "")
 
   Debug("Called Whisper for "..name.." with message "..message)
   if timestamp[name] and CHYconfig.Interval > 0 then
@@ -585,6 +585,7 @@ function CantHealYouOptions_Save()
   CHYconfig.OnlyPartyRaidGuild = toboolean(CantHealYouOptionsOnlyPartyRaidGuild:GetChecked())
   CHYconfig.Active = toboolean(CantHealYouOptionsActive:GetChecked())
   CHYconfig.InBattlegrounds = toboolean(CantHealYouOptionsInBattlegrounds:GetChecked())
+  CHYconfig.OnlyWhenHealer = toboolean(CantHealYouOptionsOnlyWhenHealer:GetChecked())
 
   CHYconfig.DoOutOfRange = toboolean(CantHealYouOptionsDoOutOfRange:GetChecked())
   CHYconfig.OutOfRange = CantHealYouOptionsOutOfRange:GetText()

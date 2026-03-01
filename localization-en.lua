@@ -40,6 +40,10 @@ CHYstrings = {
 
 ["UIinbattlegroundshelp"] = "Check to enable whispering when in battlegrounds.",
 
+["UIonlywhenhealer"] = "Only When Healer",
+
+["UIonlywhenhealerhelp"] = "Check to only send warnings when you are in a healer specialization.",
+
 ["UIoutofrange"] = "Out of Range?",
 
 ["UIoutofrangehelp"] = "Check to whisper players if they run out of your range while you're casting.",

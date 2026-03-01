@@ -39,10 +39,10 @@
         </FontString>
       </Layer>
     </Layers>
-     
+
     <Frames>
-    
-      -- Master Switch
+
+      <!-- Master Switch -->
       <CheckButton name="$parentActive" inherits="UICheckButtonTemplate">
         <Anchors>
           <Anchor point="BOTTOMLEFT" relativeTo="$parentVersion" relativePoint="BOTTOMRIGHT">
@@ -53,8 +53,20 @@
           <OnLoad> CantHealYouOptions_CheckButtonText( self, CHYstrings.UImasterswitch, CHYstrings.UImasterswitchhelp ) </OnLoad>
         </Scripts>
       </CheckButton>
-       
-      -- Only Party/Raid/Guild switch
+
+      <!-- Only When Healer switch -->
+      <CheckButton name="$parentOnlyWhenHealer" inherits="UICheckButtonTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="$parentActive" relativePoint="BOTTOMLEFT">
+            <Offset x="0" y="-5"/>
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <OnLoad> CantHealYouOptions_CheckButtonText( self, CHYstrings.UIonlywhenhealer, CHYstrings.UIonlywhenhealerhelp ) </OnLoad>
+        </Scripts>
+      </CheckButton>
+
+      <!-- Only Party/Raid/Guild switch -->
       <CheckButton name="$parentOnlyPartyRaidGuild" inherits="UICheckButtonTemplate">
         <Anchors>
           <Anchor point="BOTTOMLEFT" relativeTo="$parentListLabel" relativePoint="BOTTOMRIGHT">
@@ -65,8 +77,8 @@
           <OnLoad> CantHealYouOptions_CheckButtonText( self, CHYstrings.UIonlypartyraidguild, CHYstrings.UIonlypartyraidguildhelp ) </OnLoad>
         </Scripts>
       </CheckButton>
-      
-      -- Battleground switch
+
+      <!-- Battleground switch -->
       <CheckButton name="$parentInBattlegrounds" inherits="UICheckButtonTemplate">
         <Anchors>
           <Anchor point="LEFT" relativeTo="$parentOnlyPartyRaidGuild" relativePoint="RIGHT">
@@ -77,8 +89,8 @@
           <OnLoad> CantHealYouOptions_CheckButtonText( self, CHYstrings.UIinbattlegrounds, CHYstrings.UIinbattlegroundshelp ) </OnLoad>
         </Scripts>
       </CheckButton>
-       
-      -- Out of Range switch
+
+      <!-- Out of Range switch -->
       <CheckButton name="$parentDoOutOfRange" inherits="UICheckButtonTemplate">
         <Anchors>
           <Anchor point="TOPLEFT">
@@ -89,7 +101,7 @@
           <OnLoad> CantHealYouOptions_CheckButtonText( self, CHYstrings.UIoutofrange, CHYstrings.UIoutofrangehelp ) </OnLoad>
         </Scripts>
       </CheckButton>
-       
+
       <EditBox name="$parentOutOfRange" enableMouse="true">
         <Size><AbsDimension x="450" y="22"/></Size>
         <Anchors>
@@ -143,7 +155,7 @@
         </FontString>
       </EditBox>
 
-      -- Line of Sight switch
+      <!-- Line of Sight switch -->
       <CheckButton name="$parentDoLineOfSight" inherits="UICheckButtonTemplate">
         <Anchors>
           <Anchor point="TOPLEFT" relativeTo="$parentDoOutOfRange" relativePoint="BOTTOMLEFT">
@@ -154,7 +166,7 @@
           <OnLoad> CantHealYouOptions_CheckButtonText( self, CHYstrings.UIlineofsight, CHYstrings.UIlineofsighthelp ) </OnLoad>
         </Scripts>
       </CheckButton>
-       
+
       <EditBox name="$parentLineOfSight" enableMouse="true">
         <Size><AbsDimension x="450" y="22"/></Size>
         <Anchors>
@@ -208,7 +220,7 @@
         </FontString>
       </EditBox>
 
-      -- Buff Bounced switch
+      <!-- Buff Bounced switch -->
       <CheckButton name="$parentDoAuraBounced" inherits="UICheckButtonTemplate">
         <Anchors>
           <Anchor point="TOPLEFT" relativeTo="$parentDoLineOfSight" relativePoint="BOTTOMLEFT">
@@ -219,7 +231,7 @@
           <OnLoad> CantHealYouOptions_CheckButtonText( self, CHYstrings.UIbuffbounced, CHYstrings.UIbuffbouncedhelp) </OnLoad>
         </Scripts>
       </CheckButton>
-       
+
       <EditBox name="$parentAuraBounced" enableMouse="true">
         <Size><AbsDimension x="450" y="22"/></Size>
         <Anchors>
@@ -273,7 +285,7 @@
         </FontString>
       </EditBox>
 
-      -- Interrupted switch
+      <!-- Interrupted switch -->
       <CheckButton name="$parentDoInterrupted" inherits="UICheckButtonTemplate">
         <Anchors>
           <Anchor point="TOPLEFT" relativeTo="$parentDoAuraBounced" relativePoint="BOTTOMLEFT">
@@ -284,7 +296,7 @@
           <OnLoad> CantHealYouOptions_CheckButtonText( self, CHYstrings.UIinterrupted, CHYstrings.UIinterruptedhelp) </OnLoad>
         </Scripts>
       </CheckButton>
-       
+
       <EditBox name="$parentInterrupted" enableMouse="true">
         <Size><AbsDimension x="450" y="22"/></Size>
         <Anchors>
@@ -338,7 +350,7 @@
         </FontString>
       </EditBox>
 
-      -- Incapacitated switch
+      <!-- Incapacitated switch -->
       <CheckButton name="$parentDoLostControl" inherits="UICheckButtonTemplate">
         <Anchors>
           <Anchor point="TOPLEFT" relativeTo="$parentDoInterrupted" relativePoint="BOTTOMLEFT">
@@ -349,7 +361,7 @@
           <OnLoad> CantHealYouOptions_CheckButtonText( self, CHYstrings.UIincapacitated, CHYstrings.UIincapacitatedhelp) </OnLoad>
         </Scripts>
       </CheckButton>
-       
+
       <EditBox name="$parentLostControl" enableMouse="true">
         <Size><AbsDimension x="450" y="22"/></Size>
         <Anchors>
@@ -402,7 +414,7 @@
           </Shadow>
         </FontString>
       </EditBox>
-       
+
       <EditBox name="$parentGainedControl" enableMouse="true">
         <Size><AbsDimension x="450" y="22"/></Size>
         <Anchors>
@@ -454,8 +466,8 @@
             </Offset>
           </Shadow>
         </FontString>
-      </EditBox>       
-       
+      </EditBox>
+
       <EditBox name="$parentInterval" enableMouse="true" numeric="true">
         <Size><AbsDimension x="50" y="27"/></Size>
         <Anchors>
@@ -521,7 +533,7 @@
           <OnClick> CantHealYouOptions_SaveDefaults() </OnClick>
         </Scripts>
       </Button>
-      
+
       <Button name="$parentLoadDefaults" inherits="OptionsButtonTemplate" text="Load Defaults">
         <Size><AbsDimension x="140" y="22"/></Size>
         <Anchors>
@@ -535,13 +547,13 @@
         </Scripts>
       </Button>
       -->
-       
+
     </Frames>
-    
+
     <Scripts>
       <OnLoad> CantHealYouOptions_OnLoad(self) </OnLoad>
       <OnShow> CantHealYouOptions_OnShow() </OnShow>
     </Scripts>
-    
+
   </Frame>
 </Ui>
