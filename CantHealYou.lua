@@ -81,33 +81,6 @@ local function UpdateHealerState()
   Debug("imahealer = "..tostring(imahealer))
 end
 
-local function FindUnitFor(who)
-  local i, size
-
-  -- second parameter ("true" on these) indicates whether or not
-  -- to give names qualified with -servername for players from
-  -- other servers
-  if GetUnitName("player", true) == who then return "player" end
-  if GetUnitName("target", true) == who then return "target" end
-  if GetUnitName("mouseover", true) == who then return "mouseover" end
-  if GetUnitName("focus", true) == who then return "focus" end
-
-  -- Check both home and instance (LFG) raid/party groups
-  if IsInAnyRaid() then
-    size = GetNumGroupMembers()
-    for i = 1, size do
-      if GetUnitName("raid"..i, true) == who then return "raid"..i end
-    end
-  elseif IsInAnyGroup() then
-    size = GetNumGroupMembers()
-    for i = 1, size do
-      if GetUnitName("party"..i, true) == who then return "party"..i end
-    end
-  end
-
-  -- couldn't find a unit, just return what we were passed
-  return who
-end
 
 local function Whisper(who, message)
   -- if we're not active, we shouldn't be here.  But if we do get here, don't do the whisper!
@@ -299,11 +272,6 @@ function CantHealYou_OnEvent(self, event, arg1, arg2, arg3, arg4)
       end
       -- set defaults (only those that don't have values will be set)
       SetAllDefaults()
-      -- v4.0 incorrectly defaulted OnlyWhenHealer to true with no UI to change it;
-      -- reset any config that was set by that bad default so whispers work out of the box
-      if CHYconfig.OnlyWhenHealer == true and (not CHYconfig.Version or CHYconfig.Version == "4.0") then
-        CHYconfig.OnlyWhenHealer = false
-      end
       -- update the version number (use modern C_AddOns API if available)
       if C_AddOns and C_AddOns.GetAddOnMetadata then
         CHYconfig.Version = C_AddOns.GetAddOnMetadata("CantHealYou", "Version")
