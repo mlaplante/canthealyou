@@ -1,8 +1,8 @@
-## Interface: 120000
+## Interface: 120001
 ## Title: Can't Heal You
 ## Version: @project-version@
 ## Author: Kroth (Haomarush)
-## Notes: Attempts to automatically detect when someone is out of line of sight or range of a heal/buff and whisper them. Updated for WoW Midnight by Kroth.
+## Notes: Attempts to automatically detect when someone is out of line of sight or range of a heal/buff and whisper them. Updated for WoW Midnight 12.0.1 by Kroth.
 ## SavedVariables: CantHealYou_Config
 ## SavedVariablesPerCharacter: CHYconfig
 localization-en.lua
