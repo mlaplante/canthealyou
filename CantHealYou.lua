@@ -44,9 +44,12 @@ local function GetSpellNameFromID(spellID)
     local info = C_Spell.GetSpellInfo(spellID)
     if info then return info.name end
   end
-  -- Fallback to deprecated API
-  local name = GetSpellInfo(spellID)
-  return name or tostring(spellID)
+  -- Fallback to deprecated API (removed in WoW Midnight)
+  if GetSpellInfo then
+    local name = GetSpellInfo(spellID)
+    return name or tostring(spellID)
+  end
+  return tostring(spellID)
 end
 
 -- Update healer state based on current spec role.
@@ -304,7 +307,8 @@ function CantHealYou_OnEvent(self, event, arg1, arg2, arg3, arg4)
       -- update the version number (use modern C_AddOns API if available)
       if C_AddOns and C_AddOns.GetAddOnMetadata then
         CHYconfig.Version = C_AddOns.GetAddOnMetadata("CantHealYou", "Version")
-      else
+      elseif GetAddOnMetadata then
+        -- Fallback to deprecated API (removed in WoW Midnight)
         CHYconfig.Version = GetAddOnMetadata("CantHealYou", "Version")
       end
       CantHealYouFrame:UnregisterEvent("ADDON_LOADED")
@@ -458,7 +462,8 @@ function CantHealYou_warn(str)
   local inRange
   if C_Spell and C_Spell.IsSpellInRange then
     inRange = C_Spell.IsSpellInRange(spell, target)
-  else
+  elseif IsSpellInRange then
+    -- Fallback to deprecated API (removed in WoW Midnight)
     inRange = IsSpellInRange(spell, target)
   end
   -- Handle both modern (true/false) and legacy (1/0) return values
@@ -649,10 +654,13 @@ function CantHealYouOptions_OnLoad(self)
     self.OnRefresh = function() CantHealYouOptions_OnShow() end
     self.OnDefault = function() end
   else
-    self.name = "Can't Heal You"
-    self.okay = function() CantHealYouOptions_Save() end
-    self.cancel = nil
-    InterfaceOptions_AddCategory(self)
+    -- Fallback to deprecated InterfaceOptions API (removed in WoW 10.0+)
+    if InterfaceOptions_AddCategory then
+      self.name = "Can't Heal You"
+      self.okay = function() CantHealYouOptions_Save() end
+      self.cancel = nil
+      InterfaceOptions_AddCategory(self)
+    end
   end
 end
 
