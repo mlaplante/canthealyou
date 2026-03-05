@@ -77,6 +77,23 @@ local function IsInAnyGroup()
   return IsInGroup(LE_PARTY_CATEGORY_HOME) or IsInGroup(LE_PARTY_CATEGORY_INSTANCE)
 end
 
+-- UnitInParty/UnitInRaid only check the HOME category; instance (LFG) group
+-- members are missed. This helper checks both categories via unit token matching.
+local function UnitIsInMyGroup(unit)
+  if UnitInParty(unit) or UnitInRaid(unit) then return true end
+  if IsInGroup(LE_PARTY_CATEGORY_INSTANCE) then
+    for i = 1, 4 do
+      if UnitExists("party"..i) and UnitIsUnit(unit, "party"..i) then return true end
+    end
+  end
+  if IsInRaid(LE_PARTY_CATEGORY_INSTANCE) then
+    for i = 1, 40 do
+      if UnitExists("raid"..i) and UnitIsUnit(unit, "raid"..i) then return true end
+    end
+  end
+  return false
+end
+
 local function UpdateHealerState()
   local specIndex = GetSpecialization()
   if specIndex then
@@ -198,7 +215,7 @@ local function DoTheWarn(who, spell, message, interval, msgType)
   if not UnitIsPlayer(who) then Debug(who.." is not a player"); return end
   -- are we only doing our party/raid/guild?
   if CHYconfig.OnlyPartyRaidGuild then
-    if not (UnitInParty(who) or UnitInRaid(who) or UnitIsInMyGuild(who)) then
+    if not (UnitIsInMyGroup(who) or UnitIsInMyGuild(who)) then
       Debug(who.." is not in party, raid or guild")
       return
     end
