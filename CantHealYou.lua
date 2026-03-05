@@ -154,10 +154,13 @@ local function Broadcast(message, interval)
   -- Only broadcast if player is in a healer spec (when OnlyWhenHealer is enabled)
   if CHYconfig.OnlyWhenHealer and not imahealer then return end
 
-  -- Check both home and instance (LFG) raid/party groups
+  -- Check both home and instance (LFG) raid/party groups.
+  -- Instance (LFG) parties use the INSTANCE_CHAT channel, not PARTY.
   if IsInAnyRaid() then
     group = "RAID"
-  elseif IsInAnyGroup() then
+  elseif IsInGroup(LE_PARTY_CATEGORY_INSTANCE) then
+    group = "INSTANCE_CHAT"
+  elseif IsInGroup(LE_PARTY_CATEGORY_HOME) then
     group = "PARTY"
   else
     -- we're not in a group, no one to broadcast to
