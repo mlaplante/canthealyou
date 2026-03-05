@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Can't Heal You – Addon Screenshots</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Exo+2:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --accent:        #4DCCE6;
+    --accent-dim:    rgba(77, 204, 230, 0.18);
+    --accent-glow:   rgba(77, 204, 230, 0.08);
+    --bg-panel:      #14161a;
+    --bg-sidebar:    #0d0f12;
+    --border:        rgba(77, 204, 230, 0.18);
+    --border-subtle: rgba(255,255,255,0.06);
+    --text-primary:  #e8eaed;
+    --text-secondary:#8a9bb0;
+    --text-accent:   #4DCCE6;
+    --text-muted:    #4a5568;
+    --input-bg:      #0a0c0f;
+    --input-border:  rgba(77,204,230,0.2);
+    --sidebar-w:     160px;
+  }
+
+  body {
+    background: #070809;
+    font-family: 'Exo 2', sans-serif;
+    padding: 60px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 60px;
+  }
+
+  h1 {
+    font-family: 'Cinzel', serif;
+    color: var(--accent);
+    font-size: 20px;
+    letter-spacing: 0.12em;
+    text-align: center;
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    max-width: 1500px;
+    width: 100%;
+  }
+
+  .mockup-label {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  /* ══════════════════════════════
+     PANEL SHELL
+  ══════════════════════════════ */
+  .panel-wrap {
+    position: relative;
+    width: 700px;
+    height: 500px;
+    border-radius: 3px;
+    box-shadow:
+      0 0 0 1px var(--border),
+      0 0 40px rgba(77,204,230,0.05),
+      0 24px 80px rgba(0,0,0,0.8);
+    overflow: hidden;
+  }
+
+  .panel-wrap::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.05) 2px, rgba(0,0,0,0.05) 4px);
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  .corner { position: absolute; width: 10px; height: 10px; border-color: var(--accent); border-style: solid; opacity: 0.35; z-index: 10; }
+  .corner.tl { top:0; left:0;   border-width: 1px 0 0 1px; }
+  .corner.tr { top:0; right:0;  border-width: 1px 1px 0 0; }
+  .corner.bl { bottom:0; left:0; border-width: 0 0 1px 1px; }
+  .corner.br { bottom:0; right:0; border-width: 0 1px 1px 0; }
+
+  .panel { display: flex; width: 100%; height: 100%; background: var(--bg-panel); }
+
+  /* ══════════════════════════════
+     SIDEBAR
+  ══════════════════════════════ */
+  .sidebar {
+    width: var(--sidebar-w);
+    flex-shrink: 0;
+    background: var(--bg-sidebar);
+    border-right: 1px solid var(--border-subtle);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  .sidebar::after {
+    content: '';
+    position: absolute;
+    right: 0; top: 0; bottom: 0; width: 1px;
+    background: linear-gradient(to bottom, transparent, var(--accent) 30%, var(--accent) 70%, transparent);
+    opacity: 0.2;
+  }
+  .sidebar-header { padding: 16px 14px 12px; border-bottom: 1px solid var(--border-subtle); }
+  .addon-title { font-family: 'Cinzel', serif; font-size: 11px; font-weight: 600; color: var(--accent); letter-spacing: 0.06em; text-transform: uppercase; line-height: 1.3; }
+  .addon-version { font-size: 10px; color: var(--text-muted); margin-top: 2px; font-weight: 300; }
+  .nav { padding: 10px 0; }
+  .nav-item {
+    position: relative; display: flex; align-items: center;
+    height: 32px; padding: 0 14px;
+    font-size: 11.5px; font-weight: 400; color: rgba(255,255,255,0.45);
+    letter-spacing: 0.02em;
+  }
+  .nav-item.active { color: var(--accent); background: var(--accent-dim); font-weight: 500; }
+  .nav-item.active::before {
+    content: ''; position: absolute; left: 0; top: 5px; bottom: 5px;
+    width: 3px; background: var(--accent); border-radius: 0 2px 2px 0;
+    box-shadow: 0 0 8px var(--accent);
+  }
+
+  /* ══════════════════════════════
+     CONTENT AREA
+  ══════════════════════════════ */
+  .content { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+  .topbar {
+    height: 52px; display: flex; align-items: center;
+    padding: 0 16px 0 20px; border-bottom: 1px solid var(--border-subtle);
+    flex-shrink: 0; gap: 8px;
+  }
+  .section-title { font-family: 'Cinzel', serif; font-size: 13px; font-weight: 600; color: var(--text-primary); letter-spacing: 0.05em; flex: 1; }
+  .close-btn {
+    width: 22px; height: 22px; border-radius: 2px;
+    border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center;
+    font-size: 14px; line-height: 1;
+  }
+
+  .body { flex: 1; padding: 18px 20px 14px; display: flex; flex-direction: column; }
+
+  /* section header */
+  .sec-hdr { margin-bottom: 10px; }
+  .sec-hdr-title { font-size: 10px; font-weight: 600; color: var(--accent); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 5px; }
+  .sec-hdr-line { height: 1px; background: linear-gradient(to right, rgba(77,204,230,0.25), transparent); }
+
+  /* col headers */
+  .col-headers {
+    display: grid; grid-template-columns: 155px 1fr 52px;
+    padding: 0 0 6px 28px; margin-bottom: 4px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .col-label { font-size: 10px; font-weight: 500; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; }
+  .col-label.right { text-align: center; }
+
+  /* rows */
+  .row {
+    display: grid; grid-template-columns: 155px 1fr 52px;
+    align-items: center; padding: 7px 0;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .row:last-child { border-bottom: none; }
+  .check-cell { display: flex; align-items: center; gap: 8px; padding-left: 4px; }
+  .chk {
+    width: 12px; height: 12px;
+    border: 1px solid var(--input-border); border-radius: 2px;
+    background: var(--input-bg); flex-shrink: 0; position: relative;
+  }
+  .chk.on { background: var(--accent-dim); border-color: var(--accent); }
+  .chk.on::after {
+    content: ''; position: absolute; left: 3px; top: 1px;
+    width: 4px; height: 7px;
+    border: 1.5px solid var(--accent); border-top: none; border-left: none;
+    transform: rotate(45deg);
+  }
+  .row-label { font-size: 11.5px; color: var(--text-primary); }
+  .msg-cell { padding: 0 8px 0 2px; }
+  .int-cell { display: flex; justify-content: center; }
+  .fake-input {
+    background: var(--input-bg); border: 1px solid var(--input-border);
+    border-radius: 2px; color: rgba(232,234,237,0.65);
+    font-family: 'Exo 2', sans-serif; font-size: 10.5px;
+    padding: 4px 7px; width: 100%; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis;
+  }
+  .fake-input.num { width: 42px; text-align: center; }
+
+  /* general section checkboxes */
+  .gen-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border-subtle); }
+  .gen-row:last-child { border-bottom: none; }
+  .gen-label { font-size: 12px; color: var(--text-primary); }
+  .gen-sublabel { font-size: 10.5px; color: var(--text-muted); margin-top: 1px; }
+
+  /* footer */
+  .footer {
+    height: 44px; border-top: 1px solid var(--border-subtle);
+    display: flex; align-items: center; justify-content: flex-end;
+    padding: 0 16px; flex-shrink: 0;
+  }
+  .save-btn {
+    height: 26px; padding: 0 18px;
+    background: transparent; border: 1px solid var(--accent);
+    border-radius: 2px; color: var(--accent);
+    font-family: 'Exo 2', sans-serif; font-size: 11px;
+    font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase;
+  }
+
+  /* ══════════════════════════════
+     CHAT PREVIEW (wide)
+  ══════════════════════════════ */
+  .chat-wrap {
+    width: 700px;
+    background: #0a0c0f;
+    border: 1px solid rgba(77,204,230,0.15);
+    border-radius: 3px;
+    overflow: hidden;
+    box-shadow: 0 0 0 1px rgba(77,204,230,0.08), 0 20px 60px rgba(0,0,0,0.7);
+  }
+  .chat-header {
+    background: var(--bg-sidebar);
+    border-bottom: 1px solid var(--border-subtle);
+    padding: 8px 14px;
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .chat-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+  .chat-line { font-size: 12.5px; line-height: 1.5; }
+  .chat-time { color: #3a4a5a; margin-right: 4px; }
+  .chat-name { font-weight: 600; }
+  .chat-name.healer { color: #52e06e; }
+  .chat-name.self   { color: #4dcce6; }
+  .chat-name.whisper-from { color: #ff7adb; }
+  .chat-name.whisper-to   { color: #ff7adb; }
+  .chat-text { color: #c8d0da; }
+  .chat-text.whisper { color: #ffc0f0; }
+  .chat-text.system  { color: #888; font-style: italic; }
+  .chat-divider { height: 1px; background: var(--border-subtle); margin: 4px 0; }
+
+  .full-width { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; }
+</style>
+</head>
+<body>
+
+<h1>Can't Heal You — Addon Preview</h1>
+
+<div class="grid">
+
+  <!-- ══ PANEL 1: GENERAL ══ -->
+  <div>
+    <div class="mockup-label">General Settings</div>
+    <div class="panel-wrap">
+      <div class="corner tl"></div><div class="corner tr"></div>
+      <div class="corner bl"></div><div class="corner br"></div>
+      <div class="panel">
+        <aside class="sidebar">
+          <div class="sidebar-header">
+            <div class="addon-title">Can't Heal You</div>
+            <div class="addon-version">v4.4.2</div>
+          </div>
+          <nav class="nav">
+            <div class="nav-item active">General</div>
+            <div class="nav-item">Spell Warnings</div>
+            <div class="nav-item">Status Warnings</div>
+            <div class="nav-item">Externals</div>
+          </nav>
+        </aside>
+        <main class="content">
+          <div class="topbar">
+            <span class="section-title">General</span>
+            <div class="close-btn">×</div>
+          </div>
+          <div class="body">
+            <div class="sec-hdr"><div class="sec-hdr-title">General</div><div class="sec-hdr-line"></div></div>
+            <div class="gen-row">
+              <div class="chk on"></div>
+              <div><div class="gen-label">Enable Can't Heal You</div><div class="gen-sublabel">Master on/off switch for the addon</div></div>
+            </div>
+            <div class="gen-row">
+              <div class="chk on"></div>
+              <div><div class="gen-label">Only when in healer spec</div><div class="gen-sublabel">Suppress messages when playing DPS or tank</div></div>
+            </div>
+            <div class="gen-row">
+              <div class="chk on"></div>
+              <div><div class="gen-label">Only whisper party / raid / guild</div><div class="gen-sublabel">Never whisper strangers or PUG members</div></div>
+            </div>
+            <div class="gen-row">
+              <div class="chk"></div>
+              <div><div class="gen-label">Enable in Battlegrounds</div><div class="gen-sublabel">Send whispers during BG matches</div></div>
+            </div>
+          </div>
+          <div class="footer"><button class="save-btn">Save &amp; Close</button></div>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PANEL 2: SPELL WARNINGS ══ -->
+  <div>
+    <div class="mockup-label">Spell Warnings</div>
+    <div class="panel-wrap">
+      <div class="corner tl"></div><div class="corner tr"></div>
+      <div class="corner bl"></div><div class="corner br"></div>
+      <div class="panel">
+        <aside class="sidebar">
+          <div class="sidebar-header">
+            <div class="addon-title">Can't Heal You</div>
+            <div class="addon-version">v4.4.2</div>
+          </div>
+          <nav class="nav">
+            <div class="nav-item">General</div>
+            <div class="nav-item active">Spell Warnings</div>
+            <div class="nav-item">Status Warnings</div>
+            <div class="nav-item">Externals</div>
+          </nav>
+        </aside>
+        <main class="content">
+          <div class="topbar">
+            <span class="section-title">Spell Warnings</span>
+            <div class="close-btn">×</div>
+          </div>
+          <div class="body">
+            <div class="sec-hdr"><div class="sec-hdr-title">Spell Warnings</div><div class="sec-hdr-line"></div></div>
+            <div class="col-headers">
+              <div class="col-label"></div>
+              <div class="col-label">Message</div>
+              <div class="col-label right">Sec</div>
+            </div>
+            <div class="row">
+              <div class="check-cell"><div class="chk on"></div><span class="row-label">Out of Range</span></div>
+              <div class="msg-cell"><div class="fake-input">I'm casting %s on you, but you're out of range!</div></div>
+              <div class="int-cell"><div class="fake-input num">5</div></div>
+            </div>
+            <div class="row">
+              <div class="check-cell"><div class="chk on"></div><span class="row-label">Line of Sight</span></div>
+              <div class="msg-cell"><div class="fake-input">I can't see you to cast %s!</div></div>
+              <div class="int-cell"><div class="fake-input num">5</div></div>
+            </div>
+            <div class="row">
+              <div class="check-cell"><div class="chk"></div><span class="row-label">Buff Bounced</span></div>
+              <div class="msg-cell"><div class="fake-input">My %s bounced — you already have that buff.</div></div>
+              <div class="int-cell"><div class="fake-input num">10</div></div>
+            </div>
+            <div class="row">
+              <div class="check-cell"><div class="chk on"></div><span class="row-label">Interrupted</span></div>
+              <div class="msg-cell"><div class="fake-input">My %s was interrupted — sorry!</div></div>
+              <div class="int-cell"><div class="fake-input num">8</div></div>
+            </div>
+          </div>
+          <div class="footer"><button class="save-btn">Save &amp; Close</button></div>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PANEL 3: STATUS WARNINGS ══ -->
+  <div>
+    <div class="mockup-label">Status Warnings</div>
+    <div class="panel-wrap">
+      <div class="corner tl"></div><div class="corner tr"></div>
+      <div class="corner bl"></div><div class="corner br"></div>
+      <div class="panel">
+        <aside class="sidebar">
+          <div class="sidebar-header">
+            <div class="addon-title">Can't Heal You</div>
+            <div class="addon-version">v4.4.2</div>
+          </div>
+          <nav class="nav">
+            <div class="nav-item">General</div>
+            <div class="nav-item">Spell Warnings</div>
+            <div class="nav-item active">Status Warnings</div>
+            <div class="nav-item">Externals</div>
+          </nav>
+        </aside>
+        <main class="content">
+          <div class="topbar">
+            <span class="section-title">Status Warnings</span>
+            <div class="close-btn">×</div>
+          </div>
+          <div class="body">
+            <div class="sec-hdr"><div class="sec-hdr-title">Status Warnings</div><div class="sec-hdr-line"></div></div>
+            <div class="col-headers">
+              <div class="col-label"></div>
+              <div class="col-label">Message</div>
+              <div class="col-label right">Sec</div>
+            </div>
+            <div class="row">
+              <div class="check-cell"><div class="chk on"></div><span class="row-label">Incapacitated</span></div>
+              <div class="msg-cell"><div class="fake-input">I'm incapacitated, can't cast %s!</div></div>
+              <div class="int-cell"><div class="fake-input num">6</div></div>
+            </div>
+            <div class="row">
+              <div class="check-cell"><div class="chk on"></div><span class="row-label">Target Immune</span></div>
+              <div class="msg-cell"><div class="fake-input">You're immune — %s can't land on you.</div></div>
+              <div class="int-cell"><div class="fake-input num">8</div></div>
+            </div>
+            <div class="row">
+              <div class="check-cell"><div class="chk on"></div><span class="row-label">Low Mana</span></div>
+              <div class="msg-cell"><div class="fake-input">I'm low on mana, healing may slow down.</div></div>
+              <div class="int-cell"><div class="fake-input num">30</div></div>
+            </div>
+          </div>
+          <div class="footer"><button class="save-btn">Save &amp; Close</button></div>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PANEL 4: EXTERNALS ══ -->
+  <div>
+    <div class="mockup-label">Externals</div>
+    <div class="panel-wrap">
+      <div class="corner tl"></div><div class="corner tr"></div>
+      <div class="corner bl"></div><div class="corner br"></div>
+      <div class="panel">
+        <aside class="sidebar">
+          <div class="sidebar-header">
+            <div class="addon-title">Can't Heal You</div>
+            <div class="addon-version">v4.4.2</div>
+          </div>
+          <nav class="nav">
+            <div class="nav-item">General</div>
+            <div class="nav-item">Spell Warnings</div>
+            <div class="nav-item">Status Warnings</div>
+            <div class="nav-item active">Externals</div>
+          </nav>
+        </aside>
+        <main class="content">
+          <div class="topbar">
+            <span class="section-title">Externals</span>
+            <div class="close-btn">×</div>
+          </div>
+          <div class="body">
+            <div class="sec-hdr"><div class="sec-hdr-title">Externals</div><div class="sec-hdr-line"></div></div>
+            <div class="col-headers">
+              <div class="col-label"></div>
+              <div class="col-label">Message</div>
+              <div class="col-label right">Sec</div>
+            </div>
+            <div class="row">
+              <div class="check-cell"><div class="chk on"></div><span class="row-label">External CDs</span></div>
+              <div class="msg-cell"><div class="fake-input">I've cast %s on you to help you survive!</div></div>
+              <div class="int-cell"><div class="fake-input num">0</div></div>
+            </div>
+          </div>
+          <div class="footer"><button class="save-btn">Save &amp; Close</button></div>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ CHAT PREVIEW — full width ══ -->
+  <div class="full-width">
+    <div class="mockup-label">In-Game Whisper Examples</div>
+    <div class="chat-wrap">
+      <div class="chat-header">General / Raid Chat</div>
+      <div class="chat-body">
+        <div class="chat-line">
+          <span class="chat-time">[14:32]</span>
+          <span class="chat-name healer">Restodruid</span>
+          <span class="chat-text"> has joined the group.</span>
+        </div>
+        <div class="chat-divider"></div>
+        <div class="chat-line">
+          <span class="chat-time">[14:33]</span>
+          <span class="chat-name self">To</span>
+          <span class="chat-name whisper-to"> Tankzilla</span>
+          <span class="chat-text whisper">: I'm casting Regrowth on you, but you're out of range!</span>
+        </div>
+        <div class="chat-line">
+          <span class="chat-time">[14:33]</span>
+          <span class="chat-name self">To</span>
+          <span class="chat-name whisper-to"> Shadowpriest</span>
+          <span class="chat-text whisper">: I can't see you to cast Renew!</span>
+        </div>
+        <div class="chat-line">
+          <span class="chat-time">[14:34]</span>
+          <span class="chat-name self">To</span>
+          <span class="chat-name whisper-to"> Paladìn</span>
+          <span class="chat-text whisper">: You're immune — Healing Touch can't land on you.</span>
+        </div>
+        <div class="chat-line">
+          <span class="chat-time">[14:34]</span>
+          <span class="chat-name self">To</span>
+          <span class="chat-name whisper-to"> Mageblast</span>
+          <span class="chat-text whisper">: I've cast Ironbark on you to help you survive!</span>
+        </div>
+        <div class="chat-divider"></div>
+        <div class="chat-line">
+          <span class="chat-text system">Can't Heal You: Low mana warning sent to raid.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

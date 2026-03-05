@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(commit-commands:commit)",
+      "Bash(git:*)",
+      "Bash(cat:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(gh release:*)",
+      "Bash(mkdir:*)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "mcp__plugin_playwright_playwright__browser_navigate",
+      "mcp__plugin_playwright_playwright__browser_resize",
+      "Bash(gh run:*)",
+      "Bash(unzip:*)",
+      "Bash(ls:*)",
+      "Bash(kill 95955:*)"
+    ]
+  }
+}

@@ -1,0 +1,9 @@
+package-as: CantHealYou
+curse-id: 1474699
+wago-id: v633vZ6b
+
+ignore:
+  - release.json
+  - .github
+  - social-banner.html
+  - social-banner-preview.png

@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Can't Heal You – Option B Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Exo+2:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --accent:        #4DCCE6;
+    --accent-dim:    rgba(77, 204, 230, 0.18);
+    --accent-glow:   rgba(77, 204, 230, 0.08);
+    --bg-panel:      #14161a;
+    --bg-sidebar:    #0d0f12;
+    --bg-content:    #14161a;
+    --bg-row:        rgba(255,255,255,0.025);
+    --bg-row-hover:  rgba(77,204,230,0.05);
+    --border:        rgba(77, 204, 230, 0.18);
+    --border-subtle: rgba(255,255,255,0.06);
+    --text-primary:  #e8eaed;
+    --text-secondary:#8a9bb0;
+    --text-accent:   #4DCCE6;
+    --text-muted:    #4a5568;
+    --input-bg:      #0a0c0f;
+    --input-border:  rgba(77,204,230,0.2);
+    --header-height: 52px;
+    --sidebar-w:     160px;
+  }
+
+  body {
+    background: #0a0b0e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'Exo 2', sans-serif;
+    padding: 40px;
+  }
+
+  /* ── Outer wrapper + scanline atmosphere ── */
+  .panel-wrap {
+    position: relative;
+    width: 700px;
+    height: 500px;
+    border-radius: 4px;
+    box-shadow:
+      0 0 0 1px var(--border),
+      0 0 30px rgba(77,204,230,0.06),
+      0 20px 60px rgba(0,0,0,0.7);
+    overflow: hidden;
+  }
+
+  /* Subtle scanline overlay */
+  .panel-wrap::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.06) 2px,
+      rgba(0,0,0,0.06) 4px
+    );
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  .panel {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    background: var(--bg-panel);
+  }
+
+  /* ════════════════════════════════
+     SIDEBAR
+  ════════════════════════════════ */
+  .sidebar {
+    width: var(--sidebar-w);
+    flex-shrink: 0;
+    background: var(--bg-sidebar);
+    border-right: 1px solid var(--border-subtle);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Faint vertical glow on sidebar right edge */
+  .sidebar::after {
+    content: '';
+    position: absolute;
+    right: 0; top: 0; bottom: 0;
+    width: 1px;
+    background: linear-gradient(
+      to bottom,
+      transparent 0%,
+      var(--accent) 30%,
+      var(--accent) 70%,
+      transparent 100%
+    );
+    opacity: 0.25;
+  }
+
+  .sidebar-header {
+    padding: 16px 14px 10px;
+    border-bottom: 1px solid var(--border-subtle);
+    flex-shrink: 0;
+  }
+
+  .addon-title {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    line-height: 1.3;
+  }
+
+  .addon-version {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 2px;
+    font-weight: 300;
+    letter-spacing: 0.03em;
+  }
+
+  .nav {
+    padding: 10px 0;
+    flex: 1;
+  }
+
+  .nav-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 32px;
+    padding: 0 14px;
+    font-size: 11.5px;
+    font-weight: 400;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: color 0.15s, background 0.15s;
+    letter-spacing: 0.02em;
+  }
+
+  .nav-item:hover {
+    color: var(--text-primary);
+    background: var(--bg-row-hover);
+  }
+
+  .nav-item.active {
+    color: var(--accent);
+    background: var(--accent-dim);
+    font-weight: 500;
+  }
+
+  /* 3px left accent bar */
+  .nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 4px; bottom: 4px;
+    width: 3px;
+    background: var(--accent);
+    border-radius: 0 2px 2px 0;
+    box-shadow: 0 0 8px var(--accent);
+  }
+
+  /* ════════════════════════════════
+     MAIN CONTENT
+  ════════════════════════════════ */
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  /* ── Top bar ── */
+  .topbar {
+    height: var(--header-height);
+    display: flex;
+    align-items: center;
+    padding: 0 16px 0 20px;
+    border-bottom: 1px solid var(--border-subtle);
+    flex-shrink: 0;
+    gap: 8px;
+  }
+
+  .section-title {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: 0.05em;
+    flex: 1;
+  }
+
+  .close-btn {
+    width: 22px;
+    height: 22px;
+    border-radius: 2px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.04);
+    color: var(--text-secondary);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    cursor: pointer;
+    line-height: 1;
+    transition: all 0.15s;
+  }
+  .close-btn:hover {
+    border-color: rgba(255,80,80,0.5);
+    color: #ff5050;
+    background: rgba(255,80,80,0.08);
+  }
+
+  /* ── Body ── */
+  .body {
+    flex: 1;
+    padding: 18px 20px 14px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* Column headers */
+  .col-headers {
+    display: grid;
+    grid-template-columns: 160px 1fr 56px;
+    gap: 0;
+    padding: 0 0 6px 28px;
+    margin-bottom: 2px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .col-label {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .col-label.center { text-align: left; padding-left: 2px; }
+  .col-label.right  { text-align: center; }
+
+  /* Rows */
+  .row {
+    display: grid;
+    grid-template-columns: 160px 1fr 56px;
+    align-items: center;
+    gap: 0;
+    padding: 7px 0 7px 0;
+    border-bottom: 1px solid var(--border-subtle);
+    transition: background 0.1s;
+  }
+
+  .row:hover { background: var(--bg-row-hover); }
+  .row:last-child { border-bottom: none; }
+
+  /* Checkbox + label */
+  .check-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-left: 4px;
+  }
+
+  .chk {
+    appearance: none;
+    width: 13px;
+    height: 13px;
+    border: 1px solid var(--input-border);
+    border-radius: 2px;
+    background: var(--input-bg);
+    flex-shrink: 0;
+    position: relative;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  .chk:checked {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+  }
+
+  .chk:checked::after {
+    content: '';
+    position: absolute;
+    left: 3px; top: 1px;
+    width: 5px; height: 8px;
+    border: 1.5px solid var(--accent);
+    border-top: none;
+    border-left: none;
+    transform: rotate(45deg);
+  }
+
+  .row-label {
+    font-size: 11.5px;
+    color: var(--text-primary);
+    font-weight: 400;
+    cursor: default;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Text inputs */
+  .msg-cell {
+    padding: 0 8px 0 2px;
+  }
+
+  .int-cell {
+    padding: 0 4px 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  input[type="text"],
+  input[type="number"] {
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 2px;
+    color: var(--text-primary);
+    font-family: 'Exo 2', sans-serif;
+    font-size: 11px;
+    padding: 4px 7px;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    width: 100%;
+  }
+
+  input[type="text"]:focus,
+  input[type="number"]:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-glow);
+  }
+
+  input[type="number"] {
+    width: 44px;
+    text-align: center;
+  }
+
+  /* Remove number arrows */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+  /* ── Footer ── */
+  .footer {
+    height: 44px;
+    border-top: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 16px;
+    flex-shrink: 0;
+  }
+
+  .save-btn {
+    height: 26px;
+    padding: 0 18px;
+    background: transparent;
+    border: 1px solid var(--accent);
+    border-radius: 2px;
+    color: var(--accent);
+    font-family: 'Exo 2', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.15s, box-shadow 0.15s, color 0.15s;
+  }
+
+  .save-btn:hover {
+    background: var(--accent-dim);
+    box-shadow: 0 0 12px var(--accent-glow);
+  }
+
+  /* ── Corner accent marks ── */
+  .corner {
+    position: absolute;
+    width: 10px; height: 10px;
+    border-color: var(--accent);
+    border-style: solid;
+    opacity: 0.4;
+    z-index: 10;
+  }
+  .corner.tl { top: 0; left: 0;   border-width: 1px 0 0 1px; }
+  .corner.tr { top: 0; right: 0;  border-width: 1px 1px 0 0; }
+  .corner.bl { bottom: 0; left: 0; border-width: 0 0 1px 1px; }
+  .corner.br { bottom: 0; right: 0; border-width: 0 1px 1px 0; }
+
+</style>
+</head>
+<body>
+
+<div class="panel-wrap">
+  <!-- Corner accent marks -->
+  <div class="corner tl"></div>
+  <div class="corner tr"></div>
+  <div class="corner bl"></div>
+  <div class="corner br"></div>
+
+  <div class="panel">
+
+    <!-- ── SIDEBAR ── -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="addon-title">Can't Heal You</div>
+        <div class="addon-version">v4.x</div>
+      </div>
+      <nav class="nav">
+        <div class="nav-item">General</div>
+        <div class="nav-item active">Spell Warnings</div>
+        <div class="nav-item">Status Warnings</div>
+        <div class="nav-item">Externals</div>
+      </nav>
+    </aside>
+
+    <!-- ── CONTENT ── -->
+    <main class="content">
+
+      <div class="topbar">
+        <span class="section-title">Spell Warnings</span>
+        <div class="close-btn">×</div>
+      </div>
+
+      <div class="body">
+
+        <!-- Column headers -->
+        <div class="col-headers">
+          <div class="col-label"></div>
+          <div class="col-label center">Message</div>
+          <div class="col-label right">Sec</div>
+        </div>
+
+        <!-- Out of Range -->
+        <div class="row">
+          <div class="check-cell">
+            <input class="chk" type="checkbox" checked>
+            <span class="row-label">Out of Range</span>
+          </div>
+          <div class="msg-cell">
+            <input type="text" value="I'm casting %s on you, but you're out of range!">
+          </div>
+          <div class="int-cell">
+            <input type="number" value="5">
+          </div>
+        </div>
+
+        <!-- Line of Sight -->
+        <div class="row">
+          <div class="check-cell">
+            <input class="chk" type="checkbox" checked>
+            <span class="row-label">Line of Sight</span>
+          </div>
+          <div class="msg-cell">
+            <input type="text" value="I can't see you to cast %s!">
+          </div>
+          <div class="int-cell">
+            <input type="number" value="5">
+          </div>
+        </div>
+
+        <!-- Buff Bounced -->
+        <div class="row">
+          <div class="check-cell">
+            <input class="chk" type="checkbox">
+            <span class="row-label">Buff Bounced</span>
+          </div>
+          <div class="msg-cell">
+            <input type="text" value="My %s bounced — you already have that buff.">
+          </div>
+          <div class="int-cell">
+            <input type="number" value="10">
+          </div>
+        </div>
+
+        <!-- Interrupted -->
+        <div class="row">
+          <div class="check-cell">
+            <input class="chk" type="checkbox" checked>
+            <span class="row-label">Interrupted</span>
+          </div>
+          <div class="msg-cell">
+            <input type="text" value="My %s was interrupted — retrying!">
+          </div>
+          <div class="int-cell">
+            <input type="number" value="8">
+          </div>
+        </div>
+
+      </div><!-- /body -->
+
+      <div class="footer">
+        <button class="save-btn">Save &amp; Close</button>
+      </div>
+
+    </main>
+  </div><!-- /panel -->
+</div><!-- /panel-wrap -->
+
+</body>
+</html>
