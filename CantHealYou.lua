@@ -21,8 +21,6 @@ local debugmode = false
 -- keep track of the last time we whispered someone
 local timestamp = {}
 
--- queue for messages deferred due to combat lockdown
-local messageQueue = {}
 
 -- keep track of whether we're in combat, incapacitated, and a healer
 local incombat = false
@@ -145,12 +143,9 @@ local function Whisper(who, message, interval, msgType)
     end
   end
   timestamp[tsKey] = time()
-  if InCombatLockdown() then
-    Debug("in combat lockdown, queueing whisper to "..name)
-    table.insert(messageQueue, {message, "WHISPER", nil, name})
-  else
+  C_Timer.After(0, function()
     SendChatMessage(message, "WHISPER", nil, name)
-  end
+  end)
 end
 
 -- tell party or raid something
@@ -202,12 +197,9 @@ local function Broadcast(message, interval)
   end
 
   timestamp[message] = time()
-  if InCombatLockdown() then
-    Debug("in combat lockdown, queueing broadcast to "..group)
-    table.insert(messageQueue, {message, group})
-  else
+  C_Timer.After(0, function()
     SendChatMessage(message, group)
-  end
+  end)
 end
 
 local function DoTheWarn(who, spell, message, interval, msgType)
@@ -442,14 +434,6 @@ function CantHealYou_OnEvent(self, event, arg1, arg2, arg3, arg4)
         Debug("leaving combat")
         incombat = false
         lowmana = false  -- reset low mana state on combat end
-        -- flush any messages queued during combat lockdown
-        if #messageQueue > 0 then
-          Debug("flushing "..#messageQueue.." queued message(s)")
-          for _, msg in ipairs(messageQueue) do
-            SendChatMessage(msg[1], msg[2], msg[3], msg[4])
-          end
-          messageQueue = {}
-        end
       end
     elseif event == "PLAYER_ENTERING_WORLD" then
       -- GetSpecialization() is not reliable during ADDON_LOADED; update here
