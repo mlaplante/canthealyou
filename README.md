@@ -2,7 +2,7 @@
 
 *Originally written by Travis S. Casey. Updated for WoW Midnight (Interface 120001, build 12.0.1.66192) by Kroth (Haomarush).*
 
-[Wago.io](https://addons.wago.io/addons/canthealyou) · [CurseForge](https://www.curseforge.com/wow/addons/cant-heal-you-for-midnight)
+[Wago.io](https://addons.wago.io/addons/canthealyou) · [CurseForge](https://www.curseforge.com/wow/addons/cant-heal-you-for-midnight) · [Documentation](https://www.mintlify.com/mlaplante/canthealyou)
 
 Healers! Ever tried to heal or buff someone, only they're out of range or out of your line of sight? And in the middle of a fight, you're casting too fast and furious to take time to tell them?
 
